@@ -682,49 +682,31 @@ window.viewDomainCookies = function (domain) {
 // };
 async function clearDomainCookies(domain) {
   const cleanedDomain = cleanDomain(domain);
-
-  // Use native confirm temporarily for testing
-  const confirmed = confirm(`Clear all cookies for ${cleanedDomain}?`);
+  const confirmed = await confirmDialog(`Clear all cookies for ${cleanedDomain}?`, {
+    title: 'Confirm Delete',
+    confirmText: 'Clear Cookies',
+    cancelText: 'Cancel'
+  });
 
   if (confirmed) {
     try {
-      const allCookiesNow = await cookieManager.getAllCookies();
-      const matchingCookies = allCookiesNow.filter(c => {
-        const cookieDomain = c.domain.startsWith('.') ? c.domain.substring(1) : c.domain;
-        const targetDomain = domain.startsWith('.') ? domain.substring(1) : domain;
-        return cookieDomain === targetDomain ||
-          cookieDomain.endsWith('.' + targetDomain) ||
-          targetDomain.endsWith('.' + cookieDomain) ||
-          c.domain === domain;
-      });
+      const results = await cookieManager.deleteCookiesForDomain(domain);
+      const successCount = results.filter(r => r.success).length;
 
-      let successCount = 0;
-
-      for (const cookie of matchingCookies) {
-        try {
-          const url = `https://${cookie.domain.replace(/^\./, '')}${cookie.path || '/'}`;
-          await chrome.cookies.remove({ url, name: cookie.name });
-          successCount++;
-        } catch (error) {
-          // Try http
-          try {
-            const url = `http://${cookie.domain.replace(/^\./, '')}${cookie.path || '/'}`;
-            await chrome.cookies.remove({ url, name: cookie.name });
-            successCount++;
-          } catch (e) {
-            console.error('Failed to delete:', cookie.name, e);
-          }
-        }
-      }
-
+      // Refresh data
       allCookies = await cookieManager.getAllCookies();
       await loadDomainsPage();
       renderCookiesTable();
 
+      // Update overview stats
       const analytics = await getAnalytics();
       updateOverviewStats(analytics);
 
-      showToast(`Cleared ${successCount} cookies for ${cleanedDomain}`, 'success');
+      if (successCount > 0) {
+        showToast(`Cleared ${successCount} cookies for ${cleanedDomain}`, 'success');
+      } else {
+        showToast(`No cookies found for ${cleanedDomain}`, 'warning');
+      }
     } catch (error) {
       console.error('Error clearing domain cookies:', error);
       showToast('Failed to clear cookies', 'error');

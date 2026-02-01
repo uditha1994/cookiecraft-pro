@@ -86,9 +86,12 @@ export class Modal {
     }
 
     close() {
-        this.overlay.classList.remove('show');
+        if (this.overlay) {
+            this.overlay.classList.remove('show');
+        }
         document.body.style.overflow = '';
 
+        // Call onClose callback
         if (this.onClose) {
             this.onClose(this);
         }
@@ -102,8 +105,14 @@ export class Modal {
     }
 
     destroy() {
-        document.removeEventListener('keydown', this.escHandler);
-        this.overlay.remove();
+        if (this.escHandler) {
+            document.removeEventListener('keydown', this.escHandler);
+        }
+        if (this.overlay && this.overlay.parentNode) {
+            this.overlay.remove();
+        }
+        this.element = null;
+        this.overlay = null;
     }
 
     setContent(content) {
@@ -147,27 +156,45 @@ export class Modal {
  */
 export function confirmDialog(message, options = {}) {
     return new Promise((resolve) => {
+        let resolved = false;
+
         const modal = new Modal({
             title: options.title || 'Confirm',
             content: `<p style="margin: 0;">${message}</p>`,
             footer: `
         <button class="btn secondary" data-action="cancel">${options.cancelText || 'Cancel'}</button>
-        <button class="btn primary" data-action="confirm">${options.confirmText || 'Confirm'}</button>
+        <button class="btn ${options.danger ? 'danger' : 'primary'}" data-action="confirm">${options.confirmText || 'Confirm'}</button>
       `,
             size: 'small',
-            onClose: () => resolve(false)
+            closable: true,
+            onClose: () => {
+                // Only resolve false if not already resolved
+                if (!resolved) {
+                    resolved = true;
+                    resolve(false);
+                }
+            }
         });
 
         modal.create().open();
 
-        modal.getElement().querySelector('[data-action="cancel"]').addEventListener('click', () => {
+        const cancelBtn = modal.getElement().querySelector('[data-action="cancel"]');
+        const confirmBtn = modal.getElement().querySelector('[data-action="confirm"]');
+
+        cancelBtn.addEventListener('click', () => {
+            if (!resolved) {
+                resolved = true;
+                resolve(false);
+            }
             modal.close();
-            resolve(false);
         });
 
-        modal.getElement().querySelector('[data-action="confirm"]').addEventListener('click', () => {
+        confirmBtn.addEventListener('click', () => {
+            if (!resolved) {
+                resolved = true;
+                resolve(true);
+            }
             modal.close();
-            resolve(true);
         });
     });
 }
