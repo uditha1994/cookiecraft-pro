@@ -19,5 +19,16 @@ module.exports = {
       lines: 70,
       statements: 70
     }
-  }
+  },
+  transform: {
+    '^.+\\.(js|jsx)$': 'babel-jest',
+  },
+
+  // Make sure setup file is transformed
+  setupFilesAfterEnv: ['./tests/setup.js'],
+
+  // Transform node_modules if needed (for testing-library)
+  transformIgnorePatterns: [
+    'node_modules/(?!(jest-)?@testing-library|@babel/runtime)'
+  ],
 };
