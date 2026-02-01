@@ -25,44 +25,44 @@ const itemsPerPage = 20;
 // ========================================
 
 document.addEventListener('DOMContentLoaded', async () => {
-    await initializeDashboard();
-    setupEventListeners();
-    setupNavigation();
-    loadTheme();
+  await initializeDashboard();
+  setupEventListeners();
+  setupNavigation();
+  loadTheme();
 
-    // Check for welcome parameter
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('welcome') === 'true') {
-        showWelcomeMessage();
-    }
+  // Check for welcome parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('welcome') === 'true') {
+    showWelcomeMessage();
+  }
 });
 
 async function initializeDashboard() {
-    try {
-        // Load all cookies
-        allCookies = await cookieManager.getAllCookies();
+  try {
+    // Load all cookies
+    allCookies = await cookieManager.getAllCookies();
 
-        // Load analytics
-        const analytics = await getAnalytics();
+    // Load analytics
+    const analytics = await getAnalytics();
 
-        // Update overview page
-        updateOverviewStats(analytics);
-        renderActivityChart(analytics.timeline);
-        renderCategoryChart(analytics.tracking.categories);
-        renderTopDomains(analytics.domains.topDomains);
+    // Update overview page
+    updateOverviewStats(analytics);
+    renderActivityChart(analytics.timeline);
+    renderCategoryChart(analytics.tracking.categories);
+    renderTopDomains(analytics.domains.topDomains);
 
-        // Load other pages
-        await loadCookiesPage();
-        await loadDomainsPage();
-        await loadAnalyticsPage(analytics);
-        await loadSchedulesPage();
-        await loadVaultPage();
-        await loadSettings();
+    // Load other pages
+    await loadCookiesPage();
+    await loadDomainsPage();
+    await loadAnalyticsPage(analytics);
+    await loadSchedulesPage();
+    await loadVaultPage();
+    await loadSettings();
 
-    } catch (error) {
-        console.error('Dashboard initialization error:', error);
-        showToast('Failed to load dashboard data', 'error');
-    }
+  } catch (error) {
+    console.error('Dashboard initialization error:', error);
+    showToast('Failed to load dashboard data', 'error');
+  }
 }
 
 // ========================================
@@ -70,83 +70,108 @@ async function initializeDashboard() {
 // ========================================
 
 function updateOverviewStats(analytics) {
-    document.getElementById('totalCookies').textContent = analytics.overview.totalCookies;
-    document.getElementById('totalDomains').textContent = analytics.overview.totalDomains;
-    document.getElementById('secureCookies').textContent = analytics.security.securePercent + '%';
-    document.getElementById('trackingCookies').textContent = analytics.tracking.trackingCount;
+  document.getElementById('totalCookies').textContent = analytics.overview.totalCookies;
+  document.getElementById('totalDomains').textContent = analytics.overview.totalDomains;
+  document.getElementById('secureCookies').textContent = analytics.security.securePercent + '%';
+  document.getElementById('trackingCookies').textContent = analytics.tracking.trackingCount;
 }
 
 function renderActivityChart(timeline) {
-    const canvas = document.getElementById('activityChart');
-    if (!canvas) return;
+  const canvas = document.getElementById('activityChart');
+  if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d');
 
-    const data = timeline.map(day => ({
-        label: day.date,
-        value: day.count
-    }));
+  const data = timeline.map(day => ({
+    label: day.date,
+    value: day.count
+  }));
 
-    drawLineChart(ctx, data, {
-        width: canvas.width,
-        height: canvas.height,
-        padding: 40,
-        lineColor: '#FF9800',
-        fillColor: 'rgba(255, 152, 0, 0.1)',
-        dotColor: '#FF9800'
-    });
+  drawLineChart(ctx, data, {
+    width: canvas.width,
+    height: canvas.height,
+    padding: 40,
+    lineColor: '#FF9800',
+    fillColor: 'rgba(255, 152, 0, 0.1)',
+    dotColor: '#FF9800'
+  });
 }
 
 function renderCategoryChart(categories) {
-    const canvas = document.getElementById('categoryChart');
-    if (!canvas) return;
+  const canvas = document.getElementById('categoryChart');
+  if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d');
 
-    const data = [
-        { label: 'Analytics', value: categories.analytics || 1, color: '#2196F3' },
-        { label: 'Advertising', value: categories.advertising || 1, color: '#F44336' },
-        { label: 'Social', value: categories.social || 1, color: '#9C27B0' },
-        { label: 'Session', value: categories.session || 1, color: '#4CAF50' },
-        { label: 'Functional', value: categories.functional || 1, color: '#FF9800' },
-        { label: 'Other', value: categories.other || 1, color: '#9E9E9E' }
-    ];
+  const data = [
+    { label: 'Analytics', value: categories.analytics || 1, color: '#2196F3' },
+    { label: 'Advertising', value: categories.advertising || 1, color: '#F44336' },
+    { label: 'Social', value: categories.social || 1, color: '#9C27B0' },
+    { label: 'Session', value: categories.session || 1, color: '#4CAF50' },
+    { label: 'Functional', value: categories.functional || 1, color: '#FF9800' },
+    { label: 'Other', value: categories.other || 1, color: '#9E9E9E' }
+  ];
 
-    drawDonutChart(ctx, data, canvas.width / 2, canvas.height / 2, 80, 25);
+  drawDonutChart(ctx, data, canvas.width / 2, canvas.height / 2, 80, 25);
 
-    // Render legend
-    const legendContainer = document.getElementById('categoryLegend');
-    if (legendContainer) {
-        legendContainer.innerHTML = data.map(item => `
+  // Render legend
+  const legendContainer = document.getElementById('categoryLegend');
+  if (legendContainer) {
+    legendContainer.innerHTML = data.map(item => `
       <div class="legend-item">
         <div class="legend-color" style="background: ${item.color}"></div>
         <span>${item.label}: ${item.value}</span>
       </div>
     `).join('');
-    }
+  }
 }
 
+// function renderTopDomains(domains) {
+//   const container = document.getElementById('topDomainsList');
+//   if (!container) return;
+
+//   if (domains.length === 0) {
+//     container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No domains found</p>';
+//     return;
+//   }
+
+//   container.innerHTML = domains.slice(0, 5).map(domain => `
+//     <div class="domain-item">
+//       <div class="domain-icon">
+//         <img src="https://www.google.com/s2/favicons?domain=${domain.domain}&sz=32" alt="" onerror="this.style.display='none'">
+//       </div>
+//       <div class="domain-info">
+//         <div class="domain-name">${escapeHtml(domain.domain)}</div>
+//         <div class="domain-stats">${domain.formattedSize}</div>
+//       </div>
+//       <div class="domain-count">${domain.count}</div>
+//     </div>
+//   `).join('');
+// }
 function renderTopDomains(domains) {
-    const container = document.getElementById('topDomainsList');
-    if (!container) return;
+  const container = document.getElementById('topDomainsList');
+  if (!container) return;
 
-    if (domains.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No domains found</p>';
-        return;
-    }
+  if (domains.length === 0) {
+    container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No domains found</p>';
+    return;
+  }
 
-    container.innerHTML = domains.slice(0, 5).map(domain => `
+  container.innerHTML = domains.slice(0, 5).map(domain => {
+    const cleanedDomain = cleanDomain(domain.domain);
+    return `
     <div class="domain-item">
       <div class="domain-icon">
-        <img src="https://www.google.com/s2/favicons?domain=${domain.domain}&sz=32" alt="" onerror="this.style.display='none'">
+        <img src="${getFaviconUrl(cleanedDomain)}" alt="" onerror="this.style.display='none'">
       </div>
       <div class="domain-info">
-        <div class="domain-name">${escapeHtml(domain.domain)}</div>
+        <div class="domain-name">${escapeHtml(cleanedDomain)}</div>
         <div class="domain-stats">${domain.formattedSize}</div>
       </div>
       <div class="domain-count">${domain.count}</div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 // ========================================
@@ -154,35 +179,103 @@ function renderTopDomains(domains) {
 // ========================================
 
 async function loadCookiesPage() {
-    renderCookiesTable();
-    populateDomainFilter();
+  renderCookiesTable();
+  populateDomainFilter();
 }
 
+// function renderCookiesTable() {
+//   const tbody = document.getElementById('allCookiesTable');
+//   if (!tbody) return;
+
+//   const startIndex = (currentPage - 1) * itemsPerPage;
+//   const endIndex = startIndex + itemsPerPage;
+//   const pageItems = allCookies.slice(startIndex, endIndex);
+
+//   if (pageItems.length === 0) {
+//     tbody.innerHTML = `
+//       <tr>
+//         <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+//           No cookies found
+//         </td>
+//       </tr>
+//     `;
+//     return;
+//   }
+
+//   tbody.innerHTML = pageItems.map((cookie, index) => {
+//     const expiryDate = cookie.expirationDate
+//       ? new Date(cookie.expirationDate * 1000).toLocaleDateString()
+//       : 'Session';
+
+//     return `
+//       <tr data-index="${startIndex + index}">
+//         <td><input type="checkbox" class="cookie-checkbox" data-index="${startIndex + index}"></td>
+//         <td><strong>${escapeHtml(cookie.name)}</strong></td>
+//         <td>${escapeHtml(cookie.domain)}</td>
+//         <td><span class="cookie-value" title="${escapeHtml(cookie.value)}">${escapeHtml(cookie.value.substring(0, 30))}${cookie.value.length > 30 ? '...' : ''}</span></td>
+//         <td>${expiryDate}</td>
+//         <td>
+//           ${cookie.secure ? '<span class="badge" style="background: var(--success-light); color: var(--success);">Secure</span>' : ''}
+//           ${cookie.httpOnly ? '<span class="badge" style="background: var(--info-light); color: var(--info);">HttpOnly</span>' : ''}
+//         </td>
+//         <td>
+//           <button class="btn-icon" onclick="viewCookie(${startIndex + index})" title="View">
+//             <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+//           </button>
+//           <button class="btn-icon danger" onclick="deleteCookieByIndex(${startIndex + index})" title="Delete">
+//             <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+//           </button>
+//         </td>
+//       </tr>
+//     `;
+//   }).join('');
+
+//   renderPagination();
+// }
+
+// Add this function HERE - before renderCookiesTable
+function attachCookieTableListeners() {
+  // View cookie buttons
+  document.querySelectorAll('.view-cookie-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const index = parseInt(btn.dataset.index);
+      viewCookie(index);
+    });
+  });
+
+  // Delete cookie buttons
+  document.querySelectorAll('.delete-cookie-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const index = parseInt(btn.dataset.index);
+      deleteCookieByIndex(index);
+    });
+  });
+}
 function renderCookiesTable() {
-    const tbody = document.getElementById('allCookiesTable');
-    if (!tbody) return;
+  const tbody = document.getElementById('allCookiesTable');
+  if (!tbody) return;
 
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const pageItems = allCookies.slice(startIndex, endIndex);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const pageItems = allCookies.slice(startIndex, endIndex);
 
-    if (pageItems.length === 0) {
-        tbody.innerHTML = `
+  if (pageItems.length === 0) {
+    tbody.innerHTML = `
       <tr>
         <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-secondary);">
           No cookies found
         </td>
       </tr>
     `;
-        return;
-    }
+    return;
+  }
 
-    tbody.innerHTML = pageItems.map((cookie, index) => {
-        const expiryDate = cookie.expirationDate
-            ? new Date(cookie.expirationDate * 1000).toLocaleDateString()
-            : 'Session';
+  tbody.innerHTML = pageItems.map((cookie, index) => {
+    const expiryDate = cookie.expirationDate
+      ? new Date(cookie.expirationDate * 1000).toLocaleDateString()
+      : 'Session';
 
-        return `
+    return `
       <tr data-index="${startIndex + index}">
         <td><input type="checkbox" class="cookie-checkbox" data-index="${startIndex + index}"></td>
         <td><strong>${escapeHtml(cookie.name)}</strong></td>
@@ -194,73 +287,152 @@ function renderCookiesTable() {
           ${cookie.httpOnly ? '<span class="badge" style="background: var(--info-light); color: var(--info);">HttpOnly</span>' : ''}
         </td>
         <td>
-          <button class="btn-icon" onclick="viewCookie(${startIndex + index})" title="View">
+          <button class="btn-icon view-cookie-btn" data-index="${startIndex + index}" title="View">
             <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
           </button>
-          <button class="btn-icon danger" onclick="deleteCookieByIndex(${startIndex + index})" title="Delete">
+          <button class="btn-icon danger delete-cookie-btn" data-index="${startIndex + index}" title="Delete">
             <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
           </button>
         </td>
       </tr>
     `;
-    }).join('');
+  }).join('');
 
-    renderPagination();
+  // Attach event listeners after rendering
+  attachCookieTableListeners();
+  renderPagination();
 }
 
 function renderPagination() {
-    const container = document.getElementById('cookiesPagination');
-    if (!container) return;
+  const container = document.getElementById('cookiesPagination');
+  if (!container) return;
 
-    const totalPages = Math.ceil(allCookies.length / itemsPerPage);
+  const totalPages = Math.ceil(allCookies.length / itemsPerPage);
 
-    if (totalPages <= 1) {
-        container.innerHTML = '';
-        return;
-    }
+  if (totalPages <= 1) {
+    container.innerHTML = '';
+    return;
+  }
 
-    let paginationHTML = `
+  let paginationHTML = `
     <button class="pagination-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
       <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
     </button>
   `;
 
-    for (let i = 1; i <= totalPages; i++) {
-        if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
-            paginationHTML += `
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+      paginationHTML += `
         <button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>
       `;
-        } else if (i === currentPage - 3 || i === currentPage + 3) {
-            paginationHTML += '<span style="padding: 0 8px;">...</span>';
-        }
+    } else if (i === currentPage - 3 || i === currentPage + 3) {
+      paginationHTML += '<span style="padding: 0 8px;">...</span>';
     }
+  }
 
-    paginationHTML += `
+  paginationHTML += `
     <button class="pagination-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
       <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
     </button>
   `;
 
-    container.innerHTML = paginationHTML;
+  container.innerHTML = paginationHTML;
 }
 
 // Make functions globally available
 window.changePage = function (page) {
-    const totalPages = Math.ceil(allCookies.length / itemsPerPage);
-    if (page < 1 || page > totalPages) return;
-    currentPage = page;
-    renderCookiesTable();
+  const totalPages = Math.ceil(allCookies.length / itemsPerPage);
+  if (page < 1 || page > totalPages) return;
+  currentPage = page;
+  renderCookiesTable();
 };
 
+// window.viewCookie = function (index) {
+//     const cookie = allCookies[index];
+//     if (!cookie) return;
+
+//     const expiryDate = cookie.expirationDate
+//         ? new Date(cookie.expirationDate * 1000).toLocaleString()
+//         : 'Session';
+
+//     const modalContent = `
+//     <div style="padding: 20px;">
+//       <div class="detail-row" style="margin-bottom: 16px;">
+//         <label style="font-weight: 600; color: var(--text-secondary); font-size: 12px; text-transform: uppercase;">Name</label>
+//         <div style="background: var(--surface-2-color); padding: 12px; border-radius: 8px; margin-top: 4px;">${escapeHtml(cookie.name)}</div>
+//       </div>
+//       <div class="detail-row" style="margin-bottom: 16px;">
+//         <label style="font-weight: 600; color: var(--text-secondary); font-size: 12px; text-transform: uppercase;">Value</label>
+//         <div style="background: var(--surface-2-color); padding: 12px; border-radius: 8px; margin-top: 4px; word-break: break-all; font-family: monospace; font-size: 12px;">${escapeHtml(cookie.value)}</div>
+//       </div>
+//       <div class="detail-row" style="margin-bottom: 16px;">
+//         <label style="font-weight: 600; color: var(--text-secondary); font-size: 12px; text-transform: uppercase;">Domain</label>
+//         <div style="background: var(--surface-2-color); padding: 12px; border-radius: 8px; margin-top: 4px;">${escapeHtml(cookie.domain)}</div>
+//       </div>
+//       <div class="detail-row" style="margin-bottom: 16px;">
+//         <label style="font-weight: 600; color: var(--text-secondary); font-size: 12px; text-transform: uppercase;">Path</label>
+//         <div style="background: var(--surface-2-color); padding: 12px; border-radius: 8px; margin-top: 4px;">${escapeHtml(cookie.path)}</div>
+//       </div>
+//       <div class="detail-row" style="margin-bottom: 16px;">
+//         <label style="font-weight: 600; color: var(--text-secondary); font-size: 12px; text-transform: uppercase;">Expires</label>
+//         <div style="background: var(--surface-2-color); padding: 12px; border-radius: 8px; margin-top: 4px;">${expiryDate}</div>
+//       </div>
+//       <div class="detail-row">
+//         <label style="font-weight: 600; color: var(--text-secondary); font-size: 12px; text-transform: uppercase;">Attributes</label>
+//         <div style="background: var(--surface-2-color); padding: 12px; border-radius: 8px; margin-top: 4px;">
+//           ${cookie.secure ? '🔒 Secure ' : ''}
+//           ${cookie.httpOnly ? '🛡️ HttpOnly ' : ''}
+//           ${cookie.sameSite ? '📋 SameSite: ' + cookie.sameSite : ''}
+//           ${!cookie.secure && !cookie.httpOnly && !cookie.sameSite ? 'None' : ''}
+//         </div>
+//       </div>
+//     </div>
+//   `;
+
+//     // Simple modal implementation
+//     const overlay = document.createElement('div');
+//     overlay.className = 'modal-overlay show';
+//     overlay.innerHTML = `
+//     <div class="modal" style="max-width: 500px;">
+//       <div class="modal-header">
+//         <h3>Cookie Details</h3>
+//         <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
+//           <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+//         </button>
+//       </div>
+//       <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+//         ${modalContent}
+//       </div>
+//       <div class="modal-footer">
+//         <button class="btn secondary" onclick="this.closest('.modal-overlay').remove()">Close</button>
+//         <button class="btn danger" onclick="deleteCookieByIndex(${index}); this.closest('.modal-overlay').remove();">Delete</button>
+//       </div>
+//     </div>
+//   `;
+
+//     document.body.appendChild(overlay);
+//     overlay.addEventListener('click', (e) => {
+//         if (e.target === overlay) overlay.remove();
+//     });
+// };
 window.viewCookie = function (index) {
-    const cookie = allCookies[index];
-    if (!cookie) return;
+  const cookie = allCookies[index];
+  if (!cookie) {
+    console.error('Cookie not found at index:', index);
+    return;
+  }
 
-    const expiryDate = cookie.expirationDate
-        ? new Date(cookie.expirationDate * 1000).toLocaleString()
-        : 'Session';
+  // Remove any existing modal first
+  const existingModal = document.querySelector('.modal-overlay');
+  if (existingModal) {
+    existingModal.remove();
+  }
 
-    const modalContent = `
+  const expiryDate = cookie.expirationDate
+    ? new Date(cookie.expirationDate * 1000).toLocaleString()
+    : 'Session';
+
+  const modalContent = `
     <div style="padding: 20px;">
       <div class="detail-row" style="margin-bottom: 16px;">
         <label style="font-weight: 600; color: var(--text-secondary); font-size: 12px; text-transform: uppercase;">Name</label>
@@ -294,14 +466,14 @@ window.viewCookie = function (index) {
     </div>
   `;
 
-    // Simple modal implementation
-    const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay show';
-    overlay.innerHTML = `
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.style.display = 'flex';
+  overlay.innerHTML = `
     <div class="modal" style="max-width: 500px;">
       <div class="modal-header">
         <h3>Cookie Details</h3>
-        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
+        <button class="modal-close" id="closeModalBtn">
           <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
         </button>
       </div>
@@ -309,72 +481,132 @@ window.viewCookie = function (index) {
         ${modalContent}
       </div>
       <div class="modal-footer">
-        <button class="btn secondary" onclick="this.closest('.modal-overlay').remove()">Close</button>
-        <button class="btn danger" onclick="deleteCookieByIndex(${index}); this.closest('.modal-overlay').remove();">Delete</button>
+        <button class="btn secondary" id="closeModalFooterBtn">Close</button>
+        <button class="btn danger" id="deleteFromModalBtn">Delete</button>
       </div>
     </div>
   `;
 
-    document.body.appendChild(overlay);
-    overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) overlay.remove();
-    });
+  document.body.appendChild(overlay);
+
+  // Add event listeners after appending to DOM
+  document.getElementById('closeModalBtn').addEventListener('click', () => overlay.remove());
+  document.getElementById('closeModalFooterBtn').addEventListener('click', () => overlay.remove());
+  document.getElementById('deleteFromModalBtn').addEventListener('click', () => {
+    deleteCookieByIndex(index);
+    overlay.remove();
+  });
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.remove();
+  });
 };
 
 window.deleteCookieByIndex = async function (index) {
-    const cookie = allCookies[index];
-    if (!cookie) return;
+  const cookie = allCookies[index];
+  if (!cookie) return;
 
-    try {
-        await cookieManager.deleteCookie(cookie);
-        allCookies.splice(index, 1);
-        renderCookiesTable();
-        showToast('Cookie deleted successfully', 'success');
-    } catch (error) {
-        console.error('Error deleting cookie:', error);
-        showToast('Failed to delete cookie', 'error');
-    }
+  try {
+    await cookieManager.deleteCookie(cookie);
+    allCookies.splice(index, 1);
+    renderCookiesTable();
+    showToast('Cookie deleted successfully', 'success');
+  } catch (error) {
+    console.error('Error deleting cookie:', error);
+    showToast('Failed to delete cookie', 'error');
+  }
 };
 
 function populateDomainFilter() {
-    const select = document.getElementById('filterDomain');
-    if (!select) return;
+  const select = document.getElementById('filterDomain');
+  if (!select) return;
 
-    const domains = [...new Set(allCookies.map(c => c.domain))].sort();
+  const domains = [...new Set(allCookies.map(c => c.domain))].sort();
 
-    select.innerHTML = '<option value="">All Domains</option>' +
-        domains.map(d => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`).join('');
+  select.innerHTML = '<option value="">All Domains</option>' +
+    domains.map(d => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`).join('');
 }
 
 // ========================================
 // Domains Page
 // ========================================
 
+// async function loadDomainsPage() {
+//   const container = document.getElementById('domainsGrid');
+//   if (!container) return;
+
+//   const stats = await cookieManager.getStatistics();
+//   const domainEntries = Object.entries(stats.byDomain).sort((a, b) => b[1] - a[1]);
+
+//   if (domainEntries.length === 0) {
+//     container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1;">No domains found</p>';
+//     return;
+//   }
+
+//   container.innerHTML = domainEntries.map(([domain, count]) => {
+//     const domainCookies = allCookies.filter(c => c.domain === domain || c.domain === '.' + domain);
+//     const secureCount = domainCookies.filter(c => c.secure).length;
+//     const sessionCount = domainCookies.filter(c => c.session).length;
+
+//     return `
+//       <div class="domain-card">
+//         <div class="domain-card-header">
+//           <div class="domain-card-icon">
+//             <img src="https://www.google.com/s2/favicons?domain=${domain}&sz=32" alt="" onerror="this.parentElement.innerHTML='<svg viewBox=\\'0 0 24 24\\'><path fill=\\'var(--primary-500)\\' d=\\'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\'/></svg>'">
+//           </div>
+//           <div class="domain-card-title">
+//             <h4>${escapeHtml(domain.replace(/^\./, ''))}</h4>
+//             <span>${count} cookies</span>
+//           </div>
+//         </div>
+//         <div class="domain-card-stats">
+//           <div class="domain-stat">
+//             <span class="domain-stat-value">${count}</span>
+//             <span class="domain-stat-label">Total</span>
+//           </div>
+//           <div class="domain-stat">
+//             <span class="domain-stat-value">${secureCount}</span>
+//             <span class="domain-stat-label">Secure</span>
+//           </div>
+//           <div class="domain-stat">
+//             <span class="domain-stat-value">${sessionCount}</span>
+//             <span class="domain-stat-label">Session</span>
+//           </div>
+//         </div>
+//         <div class="domain-card-actions">
+//           <button onclick="viewDomainCookies('${escapeHtml(domain)}')">View All</button>
+//           <button class="danger" onclick="clearDomainCookies('${escapeHtml(domain)}')">Clear All</button>
+//         </div>
+//       </div>
+//     `;
+//   }).join('');
+// }
 async function loadDomainsPage() {
-    const container = document.getElementById('domainsGrid');
-    if (!container) return;
+  const container = document.getElementById('domainsGrid');
+  if (!container) return;
 
-    const stats = await cookieManager.getStatistics();
-    const domainEntries = Object.entries(stats.byDomain).sort((a, b) => b[1] - a[1]);
+  const stats = await cookieManager.getStatistics();
+  const domainEntries = Object.entries(stats.byDomain).sort((a, b) => b[1] - a[1]);
 
-    if (domainEntries.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1;">No domains found</p>';
-        return;
-    }
+  if (domainEntries.length === 0) {
+    container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1;">No domains found</p>';
+    return;
+  }
 
-    container.innerHTML = domainEntries.map(([domain, count]) => {
-        const domainCookies = allCookies.filter(c => c.domain === domain || c.domain === '.' + domain);
-        const secureCount = domainCookies.filter(c => c.secure).length;
-        const sessionCount = domainCookies.filter(c => c.session).length;
+  container.innerHTML = domainEntries.map(([domain, count]) => {
+    const cleanedDomain = cleanDomain(domain);
+    const domainCookies = allCookies.filter(c => c.domain === domain || c.domain === '.' + cleanedDomain);
+    const secureCount = domainCookies.filter(c => c.secure).length;
+    const sessionCount = domainCookies.filter(c => c.session).length;
 
-        return `
+    return `
       <div class="domain-card">
         <div class="domain-card-header">
           <div class="domain-card-icon">
-            <img src="https://www.google.com/s2/favicons?domain=${domain}&sz=32" alt="" onerror="this.parentElement.innerHTML='<svg viewBox=\\'0 0 24 24\\'><path fill=\\'var(--primary-500)\\' d=\\'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\'/></svg>'">
+            <img src="${getFaviconUrl(cleanedDomain)}" alt="" onerror="this.parentElement.innerHTML='<svg viewBox=\\'0 0 24 24\\'><path fill=\\'var(--primary-500)\\' d=\\'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z\\'/></svg>'">
           </div>
           <div class="domain-card-title">
-            <h4>${escapeHtml(domain.replace(/^\./, ''))}</h4>
+            <h4>${escapeHtml(cleanedDomain)}</h4>
             <span>${count} cookies</span>
           </div>
         </div>
@@ -393,76 +625,147 @@ async function loadDomainsPage() {
           </div>
         </div>
         <div class="domain-card-actions">
-          <button onclick="viewDomainCookies('${escapeHtml(domain)}')">View All</button>
-          <button class="danger" onclick="clearDomainCookies('${escapeHtml(domain)}')">Clear All</button>
+          <button class="view-domain-btn" data-domain="${escapeHtml(domain)}">View All</button>
+          <button class="clear-domain-btn danger" data-domain="${escapeHtml(domain)}">Clear All</button>
         </div>
       </div>
     `;
-    }).join('');
+  }).join('');
+
+  // Attach event listeners for domain buttons
+  attachDomainCardListeners();
+}
+function attachDomainCardListeners() {
+  // View domain cookies buttons
+  document.querySelectorAll('.view-domain-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const domain = btn.dataset.domain;
+      viewDomainCookies(domain);
+    });
+  });
+
+  // Clear domain cookies buttons
+  document.querySelectorAll('.clear-domain-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const domain = btn.dataset.domain;
+      clearDomainCookies(domain);
+    });
+  });
 }
 
 window.viewDomainCookies = function (domain) {
-    // Switch to cookies page and filter
-    navigateToPage('cookies');
-    document.getElementById('filterDomain').value = domain;
-    filterCookies();
+  // Switch to cookies page and filter
+  navigateToPage('cookies');
+  document.getElementById('filterDomain').value = domain;
+  filterCookies();
 };
 
-window.clearDomainCookies = async function (domain) {
-    const confirmed = await confirmDialog(`Clear all cookies for ${domain}?`, {
-        title: 'Confirm Delete',
-        confirmText: 'Clear Cookies',
-        cancelText: 'Cancel'
-    });
+// window.clearDomainCookies = async function (domain) {
+//   const confirmed = await confirmDialog(`Clear all cookies for ${domain}?`, {
+//     title: 'Confirm Delete',
+//     confirmText: 'Clear Cookies',
+//     cancelText: 'Cancel'
+//   });
 
-    if (confirmed) {
+//   if (confirmed) {
+//     try {
+//       await cookieManager.deleteCookiesForDomain(domain);
+//       allCookies = await cookieManager.getAllCookies();
+//       await loadDomainsPage();
+//       renderCookiesTable();
+//       showToast(`Cookies cleared for ${domain}`, 'success');
+//     } catch (error) {
+//       console.error('Error clearing domain cookies:', error);
+//       showToast('Failed to clear cookies', 'error');
+//     }
+//   }
+// };
+async function clearDomainCookies(domain) {
+  const cleanedDomain = cleanDomain(domain);
+
+  // Use native confirm temporarily for testing
+  const confirmed = confirm(`Clear all cookies for ${cleanedDomain}?`);
+
+  if (confirmed) {
+    try {
+      const allCookiesNow = await cookieManager.getAllCookies();
+      const matchingCookies = allCookiesNow.filter(c => {
+        const cookieDomain = c.domain.startsWith('.') ? c.domain.substring(1) : c.domain;
+        const targetDomain = domain.startsWith('.') ? domain.substring(1) : domain;
+        return cookieDomain === targetDomain ||
+          cookieDomain.endsWith('.' + targetDomain) ||
+          targetDomain.endsWith('.' + cookieDomain) ||
+          c.domain === domain;
+      });
+
+      let successCount = 0;
+
+      for (const cookie of matchingCookies) {
         try {
-            await cookieManager.deleteCookiesForDomain(domain);
-            allCookies = await cookieManager.getAllCookies();
-            await loadDomainsPage();
-            renderCookiesTable();
-            showToast(`Cookies cleared for ${domain}`, 'success');
+          const url = `https://${cookie.domain.replace(/^\./, '')}${cookie.path || '/'}`;
+          await chrome.cookies.remove({ url, name: cookie.name });
+          successCount++;
         } catch (error) {
-            console.error('Error clearing domain cookies:', error);
-            showToast('Failed to clear cookies', 'error');
+          // Try http
+          try {
+            const url = `http://${cookie.domain.replace(/^\./, '')}${cookie.path || '/'}`;
+            await chrome.cookies.remove({ url, name: cookie.name });
+            successCount++;
+          } catch (e) {
+            console.error('Failed to delete:', cookie.name, e);
+          }
         }
+      }
+
+      allCookies = await cookieManager.getAllCookies();
+      await loadDomainsPage();
+      renderCookiesTable();
+
+      const analytics = await getAnalytics();
+      updateOverviewStats(analytics);
+
+      showToast(`Cleared ${successCount} cookies for ${cleanedDomain}`, 'success');
+    } catch (error) {
+      console.error('Error clearing domain cookies:', error);
+      showToast('Failed to clear cookies', 'error');
     }
-};
+  }
+}
 
 // ========================================
 // Analytics Page
 // ========================================
 
 async function loadAnalyticsPage(analytics) {
-    renderTimelineChart(analytics.timeline);
-    renderSecurityMetrics(analytics.security);
-    renderTrackingBreakdown(analytics.tracking);
-    renderExpiryChart(analytics.expiry);
+  renderTimelineChart(analytics.timeline);
+  renderSecurityMetrics(analytics.security);
+  renderTrackingBreakdown(analytics.tracking);
+  renderExpiryChart(analytics.expiry);
 }
 
 function renderTimelineChart(timeline) {
-    const canvas = document.getElementById('timelineChart');
-    if (!canvas) return;
+  const canvas = document.getElementById('timelineChart');
+  if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d');
 
-    const data = timeline.map(day => ({
-        label: day.date,
-        value: day.count
-    }));
+  const data = timeline.map(day => ({
+    label: day.date,
+    value: day.count
+  }));
 
-    drawBarChart(ctx, data, {
-        width: canvas.width,
-        height: canvas.height,
-        barColor: '#FF9800'
-    });
+  drawBarChart(ctx, data, {
+    width: canvas.width,
+    height: canvas.height,
+    barColor: '#FF9800'
+  });
 }
 
 function renderSecurityMetrics(security) {
-    const container = document.getElementById('securityMetrics');
-    if (!container) return;
+  const container = document.getElementById('securityMetrics');
+  if (!container) return;
 
-    container.innerHTML = `
+  container.innerHTML = `
     <div class="security-metric">
       <span class="security-metric-label">Secure Cookies</span>
       <div class="security-metric-bar">
@@ -495,10 +798,10 @@ function renderSecurityMetrics(security) {
 }
 
 function renderTrackingBreakdown(tracking) {
-    const container = document.getElementById('trackingBreakdown');
-    if (!container) return;
+  const container = document.getElementById('trackingBreakdown');
+  if (!container) return;
 
-    container.innerHTML = `
+  container.innerHTML = `
     <div class="tracking-item">
       <div class="tracking-item-icon analytics">
         <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
@@ -533,21 +836,21 @@ function renderTrackingBreakdown(tracking) {
 }
 
 function renderExpiryChart(expiry) {
-    const canvas = document.getElementById('expiryChart');
-    if (!canvas) return;
+  const canvas = document.getElementById('expiryChart');
+  if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d');
 
-    const data = [
-        { label: 'Session', value: expiry.session || 1, color: '#FF9800' },
-        { label: '<24h', value: expiry.within24Hours || 1, color: '#4CAF50' },
-        { label: '<7d', value: expiry.within7Days || 1, color: '#2196F3' },
-        { label: '<30d', value: expiry.within30Days || 1, color: '#9C27B0' },
-        { label: '<1y', value: expiry.within1Year || 1, color: '#FF5722' },
-        { label: '>1y', value: expiry.over1Year || 1, color: '#F44336' }
-    ];
+  const data = [
+    { label: 'Session', value: expiry.session || 1, color: '#FF9800' },
+    { label: '<24h', value: expiry.within24Hours || 1, color: '#4CAF50' },
+    { label: '<7d', value: expiry.within7Days || 1, color: '#2196F3' },
+    { label: '<30d', value: expiry.within30Days || 1, color: '#9C27B0' },
+    { label: '<1y', value: expiry.within1Year || 1, color: '#FF5722' },
+    { label: '>1y', value: expiry.over1Year || 1, color: '#F44336' }
+  ];
 
-    drawDonutChart(ctx, data, canvas.width / 2, canvas.height / 2, 70, 20);
+  drawDonutChart(ctx, data, canvas.width / 2, canvas.height / 2, 70, 20);
 }
 
 // ========================================
@@ -555,13 +858,13 @@ function renderExpiryChart(expiry) {
 // ========================================
 
 async function loadSchedulesPage() {
-    const container = document.getElementById('schedulesGrid');
-    if (!container) return;
+  const container = document.getElementById('schedulesGrid');
+  if (!container) return;
 
-    const schedules = await storageManager.get('schedules') || [];
+  const schedules = await storageManager.get('schedules') || [];
 
-    if (schedules.length === 0) {
-        container.innerHTML = `
+  if (schedules.length === 0) {
+    container.innerHTML = `
       <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
         <svg viewBox="0 0 24 24" width="64" height="64" style="fill: var(--text-secondary); margin-bottom: 16px;">
           <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
@@ -574,19 +877,19 @@ async function loadSchedulesPage() {
         </button>
       </div>
     `;
-        return;
-    }
+    return;
+  }
 
-    const frequencyLabels = {
-        30: 'Every 30 minutes',
-        60: 'Every hour',
-        360: 'Every 6 hours',
-        720: 'Every 12 hours',
-        1440: 'Daily',
-        10080: 'Weekly'
-    };
+  const frequencyLabels = {
+    30: 'Every 30 minutes',
+    60: 'Every hour',
+    360: 'Every 6 hours',
+    720: 'Every 12 hours',
+    1440: 'Daily',
+    10080: 'Weekly'
+  };
 
-    container.innerHTML = schedules.map((schedule, index) => `
+  container.innerHTML = schedules.map((schedule, index) => `
     <div class="schedule-card">
       <div class="schedule-card-header">
         <div class="schedule-card-icon">
@@ -639,9 +942,9 @@ async function loadSchedulesPage() {
 }
 
 window.showAddScheduleModal = function () {
-    const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay show';
-    overlay.innerHTML = `
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay show';
+  overlay.innerHTML = `
     <div class="modal" style="max-width: 500px;">
       <div class="modal-header">
         <h3>Create New Schedule</h3>
@@ -691,87 +994,87 @@ window.showAddScheduleModal = function () {
     </div>
   `;
 
-    document.body.appendChild(overlay);
-    overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) overlay.remove();
-    });
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.remove();
+  });
 };
 
 window.createNewSchedule = async function () {
-    const name = document.getElementById('newScheduleName').value.trim();
-    const frequency = parseInt(document.getElementById('newScheduleFrequency').value);
-    const targets = {
-        cookies: document.getElementById('newSchedCookies').checked,
-        cache: document.getElementById('newSchedCache').checked,
-        history: document.getElementById('newSchedHistory').checked
-    };
-    const domain = document.getElementById('newScheduleDomain').value.trim();
+  const name = document.getElementById('newScheduleName').value.trim();
+  const frequency = parseInt(document.getElementById('newScheduleFrequency').value);
+  const targets = {
+    cookies: document.getElementById('newSchedCookies').checked,
+    cache: document.getElementById('newSchedCache').checked,
+    history: document.getElementById('newSchedHistory').checked
+  };
+  const domain = document.getElementById('newScheduleDomain').value.trim();
 
-    if (!name) {
-        showToast('Please enter a schedule name', 'warning');
-        return;
-    }
+  if (!name) {
+    showToast('Please enter a schedule name', 'warning');
+    return;
+  }
 
-    const schedule = {
-        id: Date.now().toString(),
-        name,
-        frequency,
-        targets,
-        domain,
-        enabled: true,
-        createdAt: Date.now()
-    };
+  const schedule = {
+    id: Date.now().toString(),
+    name,
+    frequency,
+    targets,
+    domain,
+    enabled: true,
+    createdAt: Date.now()
+  };
 
-    const schedules = await storageManager.get('schedules') || [];
-    schedules.push(schedule);
-    await storageManager.set('schedules', schedules);
+  const schedules = await storageManager.get('schedules') || [];
+  schedules.push(schedule);
+  await storageManager.set('schedules', schedules);
 
-    // Create alarm via background script
-    await chrome.runtime.sendMessage({
-        action: 'createSchedule',
-        schedule
-    });
+  // Create alarm via background script
+  await chrome.runtime.sendMessage({
+    action: 'createSchedule',
+    schedule
+  });
 
-    document.querySelector('.modal-overlay').remove();
-    await loadSchedulesPage();
-    showToast('Schedule created successfully', 'success');
+  document.querySelector('.modal-overlay').remove();
+  await loadSchedulesPage();
+  showToast('Schedule created successfully', 'success');
 };
 
 window.toggleScheduleStatus = async function (index) {
-    const schedules = await storageManager.get('schedules') || [];
-    schedules[index].enabled = !schedules[index].enabled;
-    await storageManager.set('schedules', schedules);
+  const schedules = await storageManager.get('schedules') || [];
+  schedules[index].enabled = !schedules[index].enabled;
+  await storageManager.set('schedules', schedules);
 
-    await chrome.runtime.sendMessage({
-        action: schedules[index].enabled ? 'enableSchedule' : 'disableSchedule',
-        scheduleId: schedules[index].id
-    });
+  await chrome.runtime.sendMessage({
+    action: schedules[index].enabled ? 'enableSchedule' : 'disableSchedule',
+    scheduleId: schedules[index].id
+  });
 
-    await loadSchedulesPage();
-    showToast(`Schedule ${schedules[index].enabled ? 'enabled' : 'paused'}`, 'success');
+  await loadSchedulesPage();
+  showToast(`Schedule ${schedules[index].enabled ? 'enabled' : 'paused'}`, 'success');
 };
 
 window.deleteSchedule = async function (index) {
-    const confirmed = await confirmDialog('Are you sure you want to delete this schedule?', {
-        title: 'Delete Schedule',
-        confirmText: 'Delete',
-        cancelText: 'Cancel'
+  const confirmed = await confirmDialog('Are you sure you want to delete this schedule?', {
+    title: 'Delete Schedule',
+    confirmText: 'Delete',
+    cancelText: 'Cancel'
+  });
+
+  if (confirmed) {
+    const schedules = await storageManager.get('schedules') || [];
+    const scheduleId = schedules[index].id;
+    schedules.splice(index, 1);
+    await storageManager.set('schedules', schedules);
+
+    await chrome.runtime.sendMessage({
+      action: 'deleteSchedule',
+      scheduleId
     });
 
-    if (confirmed) {
-        const schedules = await storageManager.get('schedules') || [];
-        const scheduleId = schedules[index].id;
-        schedules.splice(index, 1);
-        await storageManager.set('schedules', schedules);
-
-        await chrome.runtime.sendMessage({
-            action: 'deleteSchedule',
-            scheduleId
-        });
-
-        await loadSchedulesPage();
-        showToast('Schedule deleted', 'success');
-    }
+    await loadSchedulesPage();
+    showToast('Schedule deleted', 'success');
+  }
 };
 
 // ========================================
@@ -779,22 +1082,22 @@ window.deleteSchedule = async function (index) {
 // ========================================
 
 async function loadVaultPage() {
-    await loadSavedBackups();
-    setupFileDropZone();
+  await loadSavedBackups();
+  setupFileDropZone();
 }
 
 async function loadSavedBackups() {
-    const container = document.getElementById('vaultBackupsList');
-    if (!container) return;
+  const container = document.getElementById('vaultBackupsList');
+  if (!container) return;
 
-    const backups = await storageManager.get('savedBackups') || [];
+  const backups = await storageManager.get('savedBackups') || [];
 
-    if (backups.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No backups saved yet</p>';
-        return;
-    }
+  if (backups.length === 0) {
+    container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No backups saved yet</p>';
+    return;
+  }
 
-    container.innerHTML = backups.map((backup, index) => `
+  container.innerHTML = backups.map((backup, index) => `
     <div class="backup-item">
       <div class="backup-item-icon">
         <svg viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
@@ -813,49 +1116,49 @@ async function loadSavedBackups() {
 }
 
 function setupFileDropZone() {
-    const dropZone = document.getElementById('fileDropZone');
-    const fileInput = document.getElementById('restoreFileInput');
-    const restoreBtn = document.getElementById('restoreVaultBackup');
+  const dropZone = document.getElementById('fileDropZone');
+  const fileInput = document.getElementById('restoreFileInput');
+  const restoreBtn = document.getElementById('restoreVaultBackup');
 
-    if (!dropZone || !fileInput) return;
+  if (!dropZone || !fileInput) return;
 
-    dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('click', () => fileInput.click());
 
-    dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropZone.style.borderColor = 'var(--primary-500)';
-        dropZone.style.background = 'var(--primary-50)';
-    });
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.style.borderColor = 'var(--primary-500)';
+    dropZone.style.background = 'var(--primary-50)';
+  });
 
-    dropZone.addEventListener('dragleave', () => {
-        dropZone.style.borderColor = '';
-        dropZone.style.background = '';
-    });
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.style.borderColor = '';
+    dropZone.style.background = '';
+  });
 
-    dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropZone.style.borderColor = '';
-        dropZone.style.background = '';
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.style.borderColor = '';
+    dropZone.style.background = '';
 
-        if (e.dataTransfer.files.length) {
-            fileInput.files = e.dataTransfer.files;
-            handleFileSelect(e.dataTransfer.files[0]);
-        }
-    });
+    if (e.dataTransfer.files.length) {
+      fileInput.files = e.dataTransfer.files;
+      handleFileSelect(e.dataTransfer.files[0]);
+    }
+  });
 
-    fileInput.addEventListener('change', (e) => {
-        if (e.target.files.length) {
-            handleFileSelect(e.target.files[0]);
-        }
-    });
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length) {
+      handleFileSelect(e.target.files[0]);
+    }
+  });
 }
 
 function handleFileSelect(file) {
-    const dropZone = document.getElementById('fileDropZone');
-    const restoreBtn = document.getElementById('restoreVaultBackup');
+  const dropZone = document.getElementById('fileDropZone');
+  const restoreBtn = document.getElementById('restoreVaultBackup');
 
-    dropZone.querySelector('p').textContent = `Selected: ${file.name}`;
-    restoreBtn.disabled = false;
+  dropZone.querySelector('p').textContent = `Selected: ${file.name}`;
+  restoreBtn.disabled = false;
 }
 
 // ========================================
@@ -863,37 +1166,37 @@ function handleFileSelect(file) {
 // ========================================
 
 async function loadSettings() {
-    const settings = await storageManager.get('settings') || {};
+  const settings = await storageManager.get('settings') || {};
 
-    document.getElementById('settingShowBadge').checked = settings.showBadge !== false;
-    document.getElementById('settingNotifications').checked = settings.notifications !== false;
-    document.getElementById('settingTrackingProtection').checked = settings.trackingProtection !== false;
-    document.getElementById('settingAutoClean').checked = settings.autoCleanOnClose === true;
-    document.getElementById('settingTheme').value = settings.theme || 'light';
+  document.getElementById('settingShowBadge').checked = settings.showBadge !== false;
+  document.getElementById('settingNotifications').checked = settings.notifications !== false;
+  document.getElementById('settingTrackingProtection').checked = settings.trackingProtection !== false;
+  document.getElementById('settingAutoClean').checked = settings.autoCleanOnClose === true;
+  document.getElementById('settingTheme').value = settings.theme || 'light';
 }
 
 async function saveSettings() {
-    const settings = {
-        showBadge: document.getElementById('settingShowBadge').checked,
-        notifications: document.getElementById('settingNotifications').checked,
-        trackingProtection: document.getElementById('settingTrackingProtection').checked,
-        autoCleanOnClose: document.getElementById('settingAutoClean').checked,
-        theme: document.getElementById('settingTheme').value
-    };
+  const settings = {
+    showBadge: document.getElementById('settingShowBadge').checked,
+    notifications: document.getElementById('settingNotifications').checked,
+    trackingProtection: document.getElementById('settingTrackingProtection').checked,
+    autoCleanOnClose: document.getElementById('settingAutoClean').checked,
+    theme: document.getElementById('settingTheme').value
+  };
 
-    await storageManager.set('settings', settings);
+  await storageManager.set('settings', settings);
 
-    // Apply theme
-    if (settings.theme === 'dark') {
-        document.getElementById('dashboardContainer').classList.add('dark-theme');
-    } else if (settings.theme === 'light') {
-        document.getElementById('dashboardContainer').classList.remove('dark-theme');
-    }
+  // Apply theme
+  if (settings.theme === 'dark') {
+    document.getElementById('dashboardContainer').classList.add('dark-theme');
+  } else if (settings.theme === 'light') {
+    document.getElementById('dashboardContainer').classList.remove('dark-theme');
+  }
 
-    // Update badge
-    await chrome.runtime.sendMessage({ action: 'updateBadge' });
+  // Update badge
+  await chrome.runtime.sendMessage({ action: 'updateBadge' });
 
-    showToast('Settings saved', 'success');
+  showToast('Settings saved', 'success');
 }
 
 // ========================================
@@ -901,95 +1204,95 @@ async function saveSettings() {
 // ========================================
 
 function setupEventListeners() {
-    // Quick Actions
-    document.getElementById('clearAllCookiesBtn')?.addEventListener('click', async () => {
-        const confirmed = await confirmDialog('Clear ALL cookies? This will log you out of all sites.', {
-            title: 'Clear All Cookies',
-            confirmText: 'Clear All',
-            cancelText: 'Cancel'
-        });
-
-        if (confirmed) {
-            await cookieManager.clearAllCookies();
-            allCookies = [];
-            await initializeDashboard();
-            showToast('All cookies cleared', 'success');
-        }
+  // Quick Actions
+  document.getElementById('clearAllCookiesBtn')?.addEventListener('click', async () => {
+    const confirmed = await confirmDialog('Clear ALL cookies? This will log you out of all sites.', {
+      title: 'Clear All Cookies',
+      confirmText: 'Clear All',
+      cancelText: 'Cancel'
     });
 
-    document.getElementById('clearCacheBtn')?.addEventListener('click', async () => {
-        const confirmed = await confirmDialog('Clear browser cache?', {
-            title: 'Clear Cache',
-            confirmText: 'Clear',
-            cancelText: 'Cancel'
-        });
+    if (confirmed) {
+      await cookieManager.clearAllCookies();
+      allCookies = [];
+      await initializeDashboard();
+      showToast('All cookies cleared', 'success');
+    }
+  });
 
-        if (confirmed) {
-            await cacheManager.clearCache();
-            showToast('Cache cleared', 'success');
-        }
+  document.getElementById('clearCacheBtn')?.addEventListener('click', async () => {
+    const confirmed = await confirmDialog('Clear browser cache?', {
+      title: 'Clear Cache',
+      confirmText: 'Clear',
+      cancelText: 'Cancel'
     });
 
-    document.getElementById('exportAllBtn')?.addEventListener('click', async () => {
-        const data = await cookieManager.exportCookies();
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `cookiemaster-export-${Date.now()}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-        showToast('Cookies exported', 'success');
+    if (confirmed) {
+      await cacheManager.clearCache();
+      showToast('Cache cleared', 'success');
+    }
+  });
+
+  document.getElementById('exportAllBtn')?.addEventListener('click', async () => {
+    const data = await cookieManager.exportCookies();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cookiemaster-export-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Cookies exported', 'success');
+  });
+
+  document.getElementById('createScheduleBtn')?.addEventListener('click', () => {
+    navigateToPage('schedules');
+    setTimeout(() => showAddScheduleModal(), 300);
+  });
+
+  // Theme toggle
+  document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
+
+  // Delete selected cookies
+  document.getElementById('deleteSelectedBtn')?.addEventListener('click', deleteSelectedCookies);
+
+  // Select all cookies
+  document.getElementById('selectAllCookies')?.addEventListener('change', (e) => {
+    document.querySelectorAll('.cookie-checkbox').forEach(cb => {
+      cb.checked = e.target.checked;
     });
+  });
 
-    document.getElementById('createScheduleBtn')?.addEventListener('click', () => {
-        navigateToPage('schedules');
-        setTimeout(() => showAddScheduleModal(), 300);
-    });
+  // Cookie search
+  document.getElementById('allCookiesSearch')?.addEventListener('input', filterCookies);
 
-    // Theme toggle
-    document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
+  // Cookie filters
+  document.getElementById('filterDomain')?.addEventListener('change', filterCookies);
+  document.getElementById('filterCookieType')?.addEventListener('change', filterCookies);
+  document.getElementById('sortCookies')?.addEventListener('change', filterCookies);
 
-    // Delete selected cookies
-    document.getElementById('deleteSelectedBtn')?.addEventListener('click', deleteSelectedCookies);
+  // Vault - Create backup
+  document.getElementById('createVaultBackup')?.addEventListener('click', createVaultBackup);
 
-    // Select all cookies
-    document.getElementById('selectAllCookies')?.addEventListener('change', (e) => {
-        document.querySelectorAll('.cookie-checkbox').forEach(cb => {
-            cb.checked = e.target.checked;
-        });
-    });
+  // Vault - Restore backup
+  document.getElementById('restoreVaultBackup')?.addEventListener('click', restoreVaultBackup);
 
-    // Cookie search
-    document.getElementById('allCookiesSearch')?.addEventListener('input', filterCookies);
+  // Settings - Save on change
+  document.querySelectorAll('#settingsPage input, #settingsPage select').forEach(el => {
+    el.addEventListener('change', saveSettings);
+  });
 
-    // Cookie filters
-    document.getElementById('filterDomain')?.addEventListener('change', filterCookies);
-    document.getElementById('filterCookieType')?.addEventListener('change', filterCookies);
-    document.getElementById('sortCookies')?.addEventListener('change', filterCookies);
+  // Settings - Export
+  document.getElementById('exportSettings')?.addEventListener('click', exportAllSettings);
 
-    // Vault - Create backup
-    document.getElementById('createVaultBackup')?.addEventListener('click', createVaultBackup);
+  // Settings - Import
+  document.getElementById('importSettings')?.addEventListener('click', importSettings);
 
-    // Vault - Restore backup
-    document.getElementById('restoreVaultBackup')?.addEventListener('click', restoreVaultBackup);
+  // Settings - Reset
+  document.getElementById('resetAllData')?.addEventListener('click', resetAllData);
 
-    // Settings - Save on change
-    document.querySelectorAll('#settingsPage input, #settingsPage select').forEach(el => {
-        el.addEventListener('change', saveSettings);
-    });
-
-    // Settings - Export
-    document.getElementById('exportSettings')?.addEventListener('click', exportAllSettings);
-
-    // Settings - Import
-    document.getElementById('importSettings')?.addEventListener('click', importSettings);
-
-    // Settings - Reset
-    document.getElementById('resetAllData')?.addEventListener('click', resetAllData);
-
-    // Add schedule button
-    document.getElementById('addScheduleBtn')?.addEventListener('click', showAddScheduleModal);
+  // Add schedule button
+  document.getElementById('addScheduleBtn')?.addEventListener('click', showAddScheduleModal);
 }
 
 // ========================================
@@ -997,33 +1300,33 @@ function setupEventListeners() {
 // ========================================
 
 function setupNavigation() {
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', (e) => {
-            e.preventDefault();
-            const page = item.dataset.page;
-            navigateToPage(page);
-        });
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      const page = item.dataset.page;
+      navigateToPage(page);
     });
+  });
 
-    document.querySelectorAll('.view-all').forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const page = link.dataset.page;
-            navigateToPage(page);
-        });
+  document.querySelectorAll('.view-all').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const page = link.dataset.page;
+      navigateToPage(page);
     });
+  });
 }
 
 function navigateToPage(pageId) {
-    // Update nav items
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.toggle('active', item.dataset.page === pageId);
-    });
+  // Update nav items
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.page === pageId);
+  });
 
-    // Update pages
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.toggle('active', page.id === `${pageId}Page`);
-    });
+  // Update pages
+  document.querySelectorAll('.page').forEach(page => {
+    page.classList.toggle('active', page.id === `${pageId}Page`);
+  });
 }
 
 // ========================================
@@ -1031,90 +1334,90 @@ function navigateToPage(pageId) {
 // ========================================
 
 async function filterCookies() {
-    const searchQuery = document.getElementById('allCookiesSearch')?.value.toLowerCase() || '';
-    const domainFilter = document.getElementById('filterDomain')?.value || '';
-    const typeFilter = document.getElementById('filterCookieType')?.value || '';
-    const sortBy = document.getElementById('sortCookies')?.value || 'name';
+  const searchQuery = document.getElementById('allCookiesSearch')?.value.toLowerCase() || '';
+  const domainFilter = document.getElementById('filterDomain')?.value || '';
+  const typeFilter = document.getElementById('filterCookieType')?.value || '';
+  const sortBy = document.getElementById('sortCookies')?.value || 'name';
 
-    // Get fresh cookies
-    let filtered = await cookieManager.getAllCookies();
+  // Get fresh cookies
+  let filtered = await cookieManager.getAllCookies();
 
-    // Apply search
-    if (searchQuery) {
-        filtered = filtered.filter(c =>
-            c.name.toLowerCase().includes(searchQuery) ||
-            c.domain.toLowerCase().includes(searchQuery) ||
-            c.value.toLowerCase().includes(searchQuery)
-        );
-    }
+  // Apply search
+  if (searchQuery) {
+    filtered = filtered.filter(c =>
+      c.name.toLowerCase().includes(searchQuery) ||
+      c.domain.toLowerCase().includes(searchQuery) ||
+      c.value.toLowerCase().includes(searchQuery)
+    );
+  }
 
-    // Apply domain filter
-    if (domainFilter) {
-        filtered = filtered.filter(c => c.domain === domainFilter || c.domain === '.' + domainFilter);
-    }
+  // Apply domain filter
+  if (domainFilter) {
+    filtered = filtered.filter(c => c.domain === domainFilter || c.domain === '.' + domainFilter);
+  }
 
-    // Apply type filter
-    switch (typeFilter) {
-        case 'session':
-            filtered = filtered.filter(c => c.session);
-            break;
-        case 'persistent':
-            filtered = filtered.filter(c => !c.session);
-            break;
-        case 'secure':
-            filtered = filtered.filter(c => c.secure);
-            break;
-        case 'httpOnly':
-            filtered = filtered.filter(c => c.httpOnly);
-            break;
-    }
+  // Apply type filter
+  switch (typeFilter) {
+    case 'session':
+      filtered = filtered.filter(c => c.session);
+      break;
+    case 'persistent':
+      filtered = filtered.filter(c => !c.session);
+      break;
+    case 'secure':
+      filtered = filtered.filter(c => c.secure);
+      break;
+    case 'httpOnly':
+      filtered = filtered.filter(c => c.httpOnly);
+      break;
+  }
 
-    // Apply sort
-    switch (sortBy) {
-        case 'name':
-            filtered.sort((a, b) => a.name.localeCompare(b.name));
-            break;
-        case 'domain':
-            filtered.sort((a, b) => a.domain.localeCompare(b.domain));
-            break;
-        case 'expiry':
-            filtered.sort((a, b) => (a.expirationDate || 0) - (b.expirationDate || 0));
-            break;
-        case 'size':
-            filtered.sort((a, b) => (b.value.length) - (a.value.length));
-            break;
-    }
+  // Apply sort
+  switch (sortBy) {
+    case 'name':
+      filtered.sort((a, b) => a.name.localeCompare(b.name));
+      break;
+    case 'domain':
+      filtered.sort((a, b) => a.domain.localeCompare(b.domain));
+      break;
+    case 'expiry':
+      filtered.sort((a, b) => (a.expirationDate || 0) - (b.expirationDate || 0));
+      break;
+    case 'size':
+      filtered.sort((a, b) => (b.value.length) - (a.value.length));
+      break;
+  }
 
-    allCookies = filtered;
-    currentPage = 1;
-    renderCookiesTable();
+  allCookies = filtered;
+  currentPage = 1;
+  renderCookiesTable();
 }
 
 async function deleteSelectedCookies() {
-    const selected = document.querySelectorAll('.cookie-checkbox:checked');
-    if (selected.length === 0) {
-        showToast('No cookies selected', 'warning');
-        return;
+  const selected = document.querySelectorAll('.cookie-checkbox:checked');
+  if (selected.length === 0) {
+    showToast('No cookies selected', 'warning');
+    return;
+  }
+
+  const confirmed = await confirmDialog(`Delete ${selected.length} selected cookies?`, {
+    title: 'Delete Cookies',
+    confirmText: 'Delete',
+    cancelText: 'Cancel'
+  });
+
+  if (confirmed) {
+    const indices = Array.from(selected).map(cb => parseInt(cb.dataset.index));
+    const toDelete = indices.map(i => allCookies[i]).filter(Boolean);
+
+    for (const cookie of toDelete) {
+      await cookieManager.deleteCookie(cookie);
     }
 
-    const confirmed = await confirmDialog(`Delete ${selected.length} selected cookies?`, {
-        title: 'Delete Cookies',
-        confirmText: 'Delete',
-        cancelText: 'Cancel'
-    });
-
-    if (confirmed) {
-        const indices = Array.from(selected).map(cb => parseInt(cb.dataset.index));
-        const toDelete = indices.map(i => allCookies[i]).filter(Boolean);
-
-        for (const cookie of toDelete) {
-            await cookieManager.deleteCookie(cookie);
-        }
-
-        allCookies = await cookieManager.getAllCookies();
-        renderCookiesTable();
-        showToast(`${toDelete.length} cookies deleted`, 'success');
-    }
+    allCookies = await cookieManager.getAllCookies();
+    renderCookiesTable();
+    showToast(`${toDelete.length} cookies deleted`, 'success');
+  }
 }
 
 // ========================================
@@ -1122,121 +1425,121 @@ async function deleteSelectedCookies() {
 // ========================================
 
 async function createVaultBackup() {
-    const name = document.getElementById('vaultBackupName')?.value.trim() || `Backup ${new Date().toLocaleDateString()}`;
-    const password = document.getElementById('vaultBackupPassword')?.value;
-    const includeAll = document.getElementById('vaultIncludeAll')?.checked !== false;
+  const name = document.getElementById('vaultBackupName')?.value.trim() || `Backup ${new Date().toLocaleDateString()}`;
+  const password = document.getElementById('vaultBackupPassword')?.value;
+  const includeAll = document.getElementById('vaultIncludeAll')?.checked !== false;
 
-    try {
-        const cookies = await cookieManager.getAllCookies();
+  try {
+    const cookies = await cookieManager.getAllCookies();
 
-        let backupData = {
-            name,
-            createdAt: Date.now(),
-            version: '1.0',
-            cookieCount: cookies.length,
-            cookies
-        };
+    let backupData = {
+      name,
+      createdAt: Date.now(),
+      version: '1.0',
+      cookieCount: cookies.length,
+      cookies
+    };
 
-        // Encrypt if password provided
-        if (password) {
-            const { encryptData } = await import('../utils/encryption.js');
-            backupData = await encryptData(backupData, password);
-            backupData.encrypted = true;
-        }
-
-        // Download file
-        const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `cookiemaster-backup-${Date.now()}.cmb`;
-        a.click();
-        URL.revokeObjectURL(url);
-
-        // Save to local storage
-        const savedBackups = await storageManager.get('savedBackups') || [];
-        savedBackups.unshift({
-            id: Date.now().toString(),
-            name,
-            createdAt: Date.now(),
-            cookieCount: cookies.length,
-            encrypted: !!password
-        });
-
-        if (savedBackups.length > 10) savedBackups.pop();
-        await storageManager.set('savedBackups', savedBackups);
-
-        await loadSavedBackups();
-        showToast('Backup created successfully', 'success');
-
-        // Reset form
-        document.getElementById('vaultBackupName').value = '';
-        document.getElementById('vaultBackupPassword').value = '';
-
-    } catch (error) {
-        console.error('Backup error:', error);
-        showToast('Failed to create backup', 'error');
+    // Encrypt if password provided
+    if (password) {
+      const { encryptData } = await import('../utils/encryption.js');
+      backupData = await encryptData(backupData, password);
+      backupData.encrypted = true;
     }
+
+    // Download file
+    const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cookiemaster-backup-${Date.now()}.cmb`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    // Save to local storage
+    const savedBackups = await storageManager.get('savedBackups') || [];
+    savedBackups.unshift({
+      id: Date.now().toString(),
+      name,
+      createdAt: Date.now(),
+      cookieCount: cookies.length,
+      encrypted: !!password
+    });
+
+    if (savedBackups.length > 10) savedBackups.pop();
+    await storageManager.set('savedBackups', savedBackups);
+
+    await loadSavedBackups();
+    showToast('Backup created successfully', 'success');
+
+    // Reset form
+    document.getElementById('vaultBackupName').value = '';
+    document.getElementById('vaultBackupPassword').value = '';
+
+  } catch (error) {
+    console.error('Backup error:', error);
+    showToast('Failed to create backup', 'error');
+  }
 }
 
 async function restoreVaultBackup() {
-    const fileInput = document.getElementById('restoreFileInput');
-    const password = document.getElementById('vaultRestorePassword')?.value;
+  const fileInput = document.getElementById('restoreFileInput');
+  const password = document.getElementById('vaultRestorePassword')?.value;
 
-    if (!fileInput?.files.length) {
-        showToast('Please select a backup file', 'warning');
+  if (!fileInput?.files.length) {
+    showToast('Please select a backup file', 'warning');
+    return;
+  }
+
+  try {
+    const file = fileInput.files[0];
+    const content = await file.text();
+    let backupData = JSON.parse(content);
+
+    // Decrypt if encrypted
+    if (backupData.encrypted) {
+      if (!password) {
+        showToast('Password required for encrypted backup', 'warning');
         return;
+      }
+      const { decryptData } = await import('../utils/encryption.js');
+      backupData = await decryptData(backupData, password);
     }
 
-    try {
-        const file = fileInput.files[0];
-        const content = await file.text();
-        let backupData = JSON.parse(content);
-
-        // Decrypt if encrypted
-        if (backupData.encrypted) {
-            if (!password) {
-                showToast('Password required for encrypted backup', 'warning');
-                return;
-            }
-            const { decryptData } = await import('../utils/encryption.js');
-            backupData = await decryptData(backupData, password);
-        }
-
-        // Restore cookies
-        let restored = 0;
-        for (const cookie of backupData.cookies) {
-            try {
-                await cookieManager.setCookie(cookie);
-                restored++;
-            } catch (e) {
-                console.warn('Failed to restore cookie:', cookie.name);
-            }
-        }
-
-        allCookies = await cookieManager.getAllCookies();
-        await initializeDashboard();
-
-        showToast(`Restored ${restored} cookies`, 'success');
-
-        // Reset form
-        fileInput.value = '';
-        document.getElementById('vaultRestorePassword').value = '';
-        document.getElementById('fileDropZone').querySelector('p').textContent = 'Drop backup file here or click to browse';
-        document.getElementById('restoreVaultBackup').disabled = true;
-
-    } catch (error) {
-        console.error('Restore error:', error);
-        showToast('Failed to restore backup. Check password if encrypted.', 'error');
+    // Restore cookies
+    let restored = 0;
+    for (const cookie of backupData.cookies) {
+      try {
+        await cookieManager.setCookie(cookie);
+        restored++;
+      } catch (e) {
+        console.warn('Failed to restore cookie:', cookie.name);
+      }
     }
+
+    allCookies = await cookieManager.getAllCookies();
+    await initializeDashboard();
+
+    showToast(`Restored ${restored} cookies`, 'success');
+
+    // Reset form
+    fileInput.value = '';
+    document.getElementById('vaultRestorePassword').value = '';
+    document.getElementById('fileDropZone').querySelector('p').textContent = 'Drop backup file here or click to browse';
+    document.getElementById('restoreVaultBackup').disabled = true;
+
+  } catch (error) {
+    console.error('Restore error:', error);
+    showToast('Failed to restore backup. Check password if encrypted.', 'error');
+  }
 }
 
 window.deleteBackup = async function (index) {
-    const backups = await storageManager.get('savedBackups') || [];
-    backups.splice(index, 1);
-    await storageManager.set('savedBackups', backups);
-    await loadSavedBackups();
-    showToast('Backup deleted', 'success');
+  const backups = await storageManager.get('savedBackups') || [];
+  backups.splice(index, 1);
+  await storageManager.set('savedBackups', backups);
+  await loadSavedBackups();
+  showToast('Backup deleted', 'success');
 };
 
 // ========================================
@@ -1244,113 +1547,113 @@ window.deleteBackup = async function (index) {
 // ========================================
 
 async function exportAllSettings() {
-    const settings = await storageManager.get('settings');
-    const schedules = await storageManager.get('schedules');
+  const settings = await storageManager.get('settings');
+  const schedules = await storageManager.get('schedules');
 
-    const data = {
-        exportedAt: Date.now(),
-        settings,
-        schedules
-    };
+  const data = {
+    exportedAt: Date.now(),
+    settings,
+    schedules
+  };
 
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `cookiemaster-settings-${Date.now()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `cookiemaster-settings-${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
 
-    showToast('Settings exported', 'success');
+  showToast('Settings exported', 'success');
 }
 
 async function importSettings() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
 
-    input.onchange = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-        try {
-            const content = await file.text();
-            const data = JSON.parse(content);
+    try {
+      const content = await file.text();
+      const data = JSON.parse(content);
 
-            if (data.settings) {
-                await storageManager.set('settings', data.settings);
-            }
+      if (data.settings) {
+        await storageManager.set('settings', data.settings);
+      }
 
-            if (data.schedules) {
-                await storageManager.set('schedules', data.schedules);
+      if (data.schedules) {
+        await storageManager.set('schedules', data.schedules);
 
-                // Recreate schedule alarms
-                for (const schedule of data.schedules) {
-                    if (schedule.enabled) {
-                        await chrome.runtime.sendMessage({
-                            action: 'createSchedule',
-                            schedule
-                        });
-                    }
-                }
-            }
-
-            await loadSettings();
-            await loadSchedulesPage();
-            showToast('Settings imported successfully', 'success');
-
-        } catch (error) {
-            console.error('Import error:', error);
-            showToast('Failed to import settings', 'error');
+        // Recreate schedule alarms
+        for (const schedule of data.schedules) {
+          if (schedule.enabled) {
+            await chrome.runtime.sendMessage({
+              action: 'createSchedule',
+              schedule
+            });
+          }
         }
-    };
+      }
 
-    input.click();
+      await loadSettings();
+      await loadSchedulesPage();
+      showToast('Settings imported successfully', 'success');
+
+    } catch (error) {
+      console.error('Import error:', error);
+      showToast('Failed to import settings', 'error');
+    }
+  };
+
+  input.click();
 }
 
 async function resetAllData() {
-    const confirmed = await confirmDialog(
-        'This will reset all settings, schedules, and saved backups. This action cannot be undone.',
-        {
-            title: 'Reset All Data',
-            confirmText: 'Reset Everything',
-            cancelText: 'Cancel'
-        }
-    );
-
-    if (confirmed) {
-        // Clear all alarms
-        const schedules = await storageManager.get('schedules') || [];
-        for (const schedule of schedules) {
-            await chrome.runtime.sendMessage({
-                action: 'deleteSchedule',
-                scheduleId: schedule.id
-            });
-        }
-
-        // Clear storage
-        await storageManager.clear();
-
-        // Re-initialize with defaults
-        await storageManager.set('settings', {
-            theme: 'light',
-            notifications: true,
-            autoCleanOnClose: false,
-            trackingProtection: true,
-            showBadge: true
-        });
-
-        await storageManager.set('schedules', []);
-        await storageManager.set('savedBackups', []);
-        await storageManager.set('cookieHistory', []);
-
-        // Reload everything
-        await loadSettings();
-        await loadSchedulesPage();
-        await loadVaultPage();
-
-        showToast('All data has been reset', 'success');
+  const confirmed = await confirmDialog(
+    'This will reset all settings, schedules, and saved backups. This action cannot be undone.',
+    {
+      title: 'Reset All Data',
+      confirmText: 'Reset Everything',
+      cancelText: 'Cancel'
     }
+  );
+
+  if (confirmed) {
+    // Clear all alarms
+    const schedules = await storageManager.get('schedules') || [];
+    for (const schedule of schedules) {
+      await chrome.runtime.sendMessage({
+        action: 'deleteSchedule',
+        scheduleId: schedule.id
+      });
+    }
+
+    // Clear storage
+    await storageManager.clear();
+
+    // Re-initialize with defaults
+    await storageManager.set('settings', {
+      theme: 'light',
+      notifications: true,
+      autoCleanOnClose: false,
+      trackingProtection: true,
+      showBadge: true
+    });
+
+    await storageManager.set('schedules', []);
+    await storageManager.set('savedBackups', []);
+    await storageManager.set('cookieHistory', []);
+
+    // Reload everything
+    await loadSettings();
+    await loadSchedulesPage();
+    await loadVaultPage();
+
+    showToast('All data has been reset', 'success');
+  }
 }
 
 // ========================================
@@ -1358,17 +1661,17 @@ async function resetAllData() {
 // ========================================
 
 function loadTheme() {
-    const savedTheme = localStorage.getItem('dashboardTheme');
-    if (savedTheme === 'dark') {
-        document.getElementById('dashboardContainer').classList.add('dark-theme');
-    }
+  const savedTheme = localStorage.getItem('dashboardTheme');
+  if (savedTheme === 'dark') {
+    document.getElementById('dashboardContainer').classList.add('dark-theme');
+  }
 }
 
 function toggleTheme() {
-    const container = document.getElementById('dashboardContainer');
-    container.classList.toggle('dark-theme');
-    const isDark = container.classList.contains('dark-theme');
-    localStorage.setItem('dashboardTheme', isDark ? 'dark' : 'light');
+  const container = document.getElementById('dashboardContainer');
+  container.classList.toggle('dark-theme');
+  const isDark = container.classList.contains('dark-theme');
+  localStorage.setItem('dashboardTheme', isDark ? 'dark' : 'light');
 }
 
 // ========================================
@@ -1376,9 +1679,9 @@ function toggleTheme() {
 // ========================================
 
 function showWelcomeMessage() {
-    const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay show';
-    overlay.innerHTML = `
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay show';
+  overlay.innerHTML = `
     <div class="modal" style="max-width: 500px; text-align: center;">
       <div class="modal-body" style="padding: 40px;">
         <svg viewBox="0 0 40 40" width="80" height="80" style="margin-bottom: 20px;">
@@ -1426,12 +1729,12 @@ function showWelcomeMessage() {
     </div>
   `;
 
-    document.body.appendChild(overlay);
+  document.body.appendChild(overlay);
 
-    // Remove welcome param from URL
-    const url = new URL(window.location.href);
-    url.searchParams.delete('welcome');
-    window.history.replaceState({}, '', url);
+  // Remove welcome param from URL
+  const url = new URL(window.location.href);
+  url.searchParams.delete('welcome');
+  window.history.replaceState({}, '', url);
 }
 
 // ========================================
@@ -1439,18 +1742,18 @@ function showWelcomeMessage() {
 // ========================================
 
 function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
 
 function formatBytes(bytes) {
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
 // Add some global styles for buttons
@@ -1572,5 +1875,17 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+
+function cleanDomain(domain) {
+  if (!domain) return '';
+  // Remove leading dot from domain
+  return domain.replace(/^\./, '');
+}
+
+function getFaviconUrl(domain) {
+  const cleanedDomain = cleanDomain(domain);
+  if (!cleanedDomain) return '';
+  return `https://www.google.com/s2/favicons?domain=${cleanedDomain}&sz=32`;
+}
 
 console.log('CookieMaster Pro Dashboard loaded');

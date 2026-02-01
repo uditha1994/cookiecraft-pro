@@ -33,7 +33,22 @@ export class CookieManager {
      */
     async getCookiesByDomain(domain) {
         try {
-            return await chrome.cookies.getAll({ domain });
+            // Clean the domain (remove leading dot)
+            const cleanedDomain = domain.startsWith('.') ? domain.substring(1) : domain;
+
+            // Get all cookies and filter by domain
+            const allCookies = await chrome.cookies.getAll({});
+
+            return allCookies.filter(cookie => {
+                const cookieDomain = cookie.domain.startsWith('.')
+                    ? cookie.domain.substring(1)
+                    : cookie.domain;
+
+                // Match exact domain or subdomain
+                return cookieDomain === cleanedDomain ||
+                    cookieDomain.endsWith('.' + cleanedDomain) ||
+                    cleanedDomain.endsWith('.' + cookieDomain);
+            });
         } catch (error) {
             console.error('Error getting cookies by domain:', error);
             return [];
@@ -85,34 +100,97 @@ export class CookieManager {
      * Delete a specific cookie
      */
     async deleteCookie(cookie) {
-        const url = this.buildCookieUrl(cookie);
+        // Try both http and https
+        const domain = cookie.domain.startsWith('.')
+            ? cookie.domain.substring(1)
+            : cookie.domain;
 
-        try {
-            return await chrome.cookies.remove({
-                url,
-                name: cookie.name
-            });
-        } catch (error) {
-            console.error('Error deleting cookie:', error);
-            throw error;
+        const path = cookie.path || '/';
+
+        // Try https first, then http
+        const urls = [
+            `https://${domain}${path}`,
+            `http://${domain}${path}`
+        ];
+
+        let lastError = null;
+
+        for (const url of urls) {
+            try {
+                const result = await chrome.cookies.remove({
+                    url,
+                    name: cookie.name
+                });
+
+                if (result) {
+                    return result;
+                }
+            } catch (error) {
+                lastError = error;
+            }
         }
+
+        // If still not deleted, try with storeId if available
+        if (cookie.storeId) {
+            try {
+                const result = await chrome.cookies.remove({
+                    url: urls[0],
+                    name: cookie.name,
+                    storeId: cookie.storeId
+                });
+
+                if (result) {
+                    return result;
+                }
+            } catch (error) {
+                lastError = error;
+            }
+        }
+
+        if (lastError) {
+            throw lastError;
+        }
+
+        return null;
     }
 
     /**
      * Delete all cookies for a domain
      */
     async deleteCookiesForDomain(domain) {
-        const cookies = await this.getCookiesByDomain(domain);
+        // Clean the domain
+        const cleanedDomain = domain.startsWith('.') ? domain.substring(1) : domain;
+
+        // Get all cookies first
+        const allCookies = await this.getAllCookies();
+
+        // Filter cookies that belong to this domain
+        const domainCookies = allCookies.filter(cookie => {
+            const cookieDomain = cookie.domain.startsWith('.')
+                ? cookie.domain.substring(1)
+                : cookie.domain;
+
+            // Match exact domain or if cookie domain ends with our domain
+            return cookieDomain === cleanedDomain ||
+                cookieDomain.endsWith('.' + cleanedDomain) ||
+                cleanedDomain.endsWith('.' + cookieDomain) ||
+                cookie.domain === domain ||
+                cookie.domain === '.' + cleanedDomain;
+        });
+
         const results = [];
 
-        for (const cookie of cookies) {
+        for (const cookie of domainCookies) {
             try {
                 await this.deleteCookie(cookie);
                 results.push({ success: true, cookie: cookie.name });
             } catch (error) {
+                console.error('Failed to delete cookie:', cookie.name, error);
                 results.push({ success: false, cookie: cookie.name, error });
             }
         }
+
+        console.log(`Deleted ${results.filter(r => r.success).length} of ${domainCookies.length} cookies for domain: ${domain}`);
 
         return results;
     }
