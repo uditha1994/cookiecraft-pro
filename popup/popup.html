@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CookieMaster Pro</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+    <div class="app-container" id="appContainer">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo-section">
+                <div class="logo">
+                    <svg viewBox="0 0 40 40" class="cookie-icon">
+                        <circle cx="20" cy="20" r="18" fill="url(#cookieGradient)" />
+                        <circle cx="12" cy="14" r="3" fill="#5D4037" />
+                        <circle cx="24" cy="12" r="2.5" fill="#5D4037" />
+                        <circle cx="28" cy="22" r="2" fill="#5D4037" />
+                        <circle cx="14" cy="26" r="2.5" fill="#5D4037" />
+                        <circle cx="22" cy="28" r="2" fill="#5D4037" />
+                        <defs>
+                            <linearGradient id="cookieGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#FF9800" />
+                                <stop offset="100%" style="stop-color:#F57C00" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="brand">
+                    <h1>CookieMaster</h1>
+                    <span class="pro-badge">PRO</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" id="themeToggle" title="Toggle Theme">
+                    <svg class="sun-icon" viewBox="0 0 24 24">
+                        <path
+                            d="M12 7a5 5 0 100 10 5 5 0 000-10zM12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                    </svg>
+                    <svg class="moon-icon" viewBox="0 0 24 24">
+                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                    </svg>
+                </button>
+                <button class="icon-btn" id="openDashboard" title="Open Dashboard">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Current Site Info -->
+        <section class="site-info-card">
+            <div class="site-favicon" id="siteFavicon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+                </svg>
+            </div>
+            <div class="site-details">
+                <h2 id="siteDomain">Loading...</h2>
+                <div class="site-stats">
+                    <span class="stat">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" />
+                        </svg>
+                        <span id="cookieCount">0</span> cookies
+                    </span>
+                    <span class="stat">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
+                        </svg>
+                        <span id="storageSize">0 KB</span>
+                    </span>
+                </div>
+            </div>
+            <div class="privacy-score" id="privacyScore">
+                <div class="score-ring">
+                    <svg viewBox="0 0 36 36">
+                        <path class="score-bg"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="score-fill" id="scoreRing" stroke-dasharray="0, 100"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    </svg>
+                    <span class="score-value" id="scoreValue">--</span>
+                </div>
+                <span class="score-label">Privacy</span>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="quick-actions">
+            <button class="action-btn primary" id="clearSiteCookies">
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                </svg>
+                Clear Site Cookies
+            </button>
+            <button class="action-btn secondary" id="clearAllCookies">
+                <svg viewBox="0 0 24 24">
+                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                </svg>
+                Clear All
+            </button>
+            <button class="action-btn accent" id="backupCookies">
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z" />
+                </svg>
+                Backup
+            </button>
+        </section>
+
+        <!-- Tabs -->
+        <nav class="tabs-nav">
+            <button class="tab-btn active" data-tab="cookies">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" />
+                </svg>
+                Cookies
+            </button>
+            <button class="tab-btn" data-tab="cache">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z" />
+                </svg>
+                Cache
+            </button>
+            <button class="tab-btn" data-tab="scheduler">
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
+                </svg>
+                Scheduler
+            </button>
+        </nav>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <!-- Cookies Tab -->
+            <div class="tab-pane active" id="cookiesTab">
+                <div class="search-bar">
+                    <svg viewBox="0 0 24 24">
+                        <path
+                            d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                    </svg>
+                    <input type="text" id="cookieSearch" placeholder="Search cookies...">
+                    <button class="filter-btn" id="filterToggle">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="filter-panel" id="filterPanel">
+                    <div class="filter-group">
+                        <label>Type:</label>
+                        <select id="filterType">
+                            <option value="all">All</option>
+                            <option value="session">Session</option>
+                            <option value="persistent">Persistent</option>
+                            <option value="secure">Secure</option>
+                            <option value="httpOnly">HttpOnly</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Sort by:</label>
+                        <select id="sortBy">
+                            <option value="name">Name</option>
+                            <option value="domain">Domain</option>
+                            <option value="expiry">Expiry</option>
+                            <option value="size">Size</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="cookies-list" id="cookiesList">
+                    <div class="loading-spinner">
+                        <div class="spinner"></div>
+                        <span>Loading cookies...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cache Tab -->
+            <!-- <div class="tab-pane" id="cacheTab">
+                <div class="cache-overview">
+                    <div class="cache-chart" id="cacheChart">
+                        <canvas id="cacheCanvas"></canvas>
+                    </div>
+                    <div class="cache-legend" id="cacheLegend"></div>
+                </div>
+
+                <div class="cache-actions">
+                    <div class="cache-option">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="clearBrowsingHistory">
+                            <span class="checkmark"></span>
+                            <span class="label-text">
+                                <svg viewBox="0 0 24 24">
+                                    <path
+                                        d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0013 21c4.97 0 9-4.03 9-9s-4.03-9-9-9z" />
+                                </svg>
+                                Browsing History
+                            </span>
+                        </label>
+                    </div>
+                    <div class="cache-option">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="clearDownloads">
+                            <span class="checkmark"></span>
+                            <span class="label-text">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                                </svg>
+                                Download History
+                            </span>
+                        </label>
+                    </div>
+                    <div class="cache-option">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="clearCache" checked>
+                            <span class="checkmark"></span>
+                            <span class="label-text">
+                                <svg viewBox="0 0 24 24">
+                                    <path
+                                        d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z" />
+                                </svg>
+                                Cached Images & Files
+                            </span>
+                        </label>
+                    </div>
+                    <div class="cache-option">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="clearFormData">
+                            <span class="checkmark"></span>
+                            <span class="label-text">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6z" />
+                                </svg>
+                                Form Data
+                            </span>
+                        </label>
+                    </div>
+                    <div class="cache-option">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="clearLocalStorage">
+                            <span class="checkmark"></span>
+                            <span class="label-text">
+                                <svg viewBox="0 0 24 24">
+                                    <path
+                                        d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z" />
+                                </svg>
+                                Local Storage
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="time-range">
+                    <label>Time Range:</label>
+                    <select id="timeRange">
+                        <option value="3600000">Last Hour</option>
+                        <option value="86400000">Last 24 Hours</option>
+                        <option value="604800000">Last 7 Days</option>
+                        <option value="2592000000">Last 4 Weeks</option>
+                        <option value="0" selected>All Time</option>
+                    </select>
+                </div>
+
+                <button class="action-btn primary full-width" id="clearSelectedCache">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                    </svg>
+                    Clear Selected Data
+                </button>
+            </div> -->
+            <div class="tab-pane" id="cacheTab">
+                <!-- Chart and Legend -->
+                <div class="cache-overview">
+                    <div class="cache-chart">
+                        <canvas id="cacheCanvas" width="100" height="100"></canvas>
+                    </div>
+                    <div class="cache-legend" id="cacheLegend"></div>
+                </div>
+
+                <!-- Cache Options -->
+                <div class="cache-actions">
+                    <div class="cache-option">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="clearBrowsingHistory">
+                            <span class="checkmark"></span>
+                            <span class="label-text">
+                                <svg viewBox="0 0 24 24">
+                                    <path
+                                        d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0013 21c4.97 0 9-4.03 9-9s-4.03-9-9-9z" />
+                                </svg>
+                                Browsing History
+                            </span>
+                        </label>
+                    </div>
+                    <div class="cache-option">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="clearDownloads">
+                            <span class="checkmark"></span>
+                            <span class="label-text">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                                </svg>
+                                Download History
+                            </span>
+                        </label>
+                    </div>
+                    <div class="cache-option">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="clearCache" checked>
+                            <span class="checkmark"></span>
+                            <span class="label-text">
+                                <svg viewBox="0 0 24 24">
+                                    <path
+                                        d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z" />
+                                </svg>
+                                Cached Images & Files
+                            </span>
+                        </label>
+                    </div>
+                    <div class="cache-option">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="clearFormData">
+                            <span class="checkmark"></span>
+                            <span class="label-text">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6z" />
+                                </svg>
+                                Form Data
+                            </span>
+                        </label>
+                    </div>
+                    <div class="cache-option">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="clearLocalStorage">
+                            <span class="checkmark"></span>
+                            <span class="label-text">
+                                <svg viewBox="0 0 24 24">
+                                    <path
+                                        d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z" />
+                                </svg>
+                                Local Storage
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Time Range Selector -->
+                <div class="time-range">
+                    <label>Time Range:</label>
+                    <select id="timeRange">
+                        <option value="3600000">Last Hour</option>
+                        <option value="86400000">Last 24 Hours</option>
+                        <option value="604800000">Last 7 Days</option>
+                        <option value="2592000000">Last 4 Weeks</option>
+                        <option value="0" selected>All Time</option>
+                    </select>
+                </div>
+
+                <!-- Clear Button -->
+                <button class="action-btn primary full-width" id="clearSelectedCache">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                    </svg>
+                    Clear Selected Data
+                </button>
+            </div>
+
+            <!-- Scheduler Tab -->
+            <div class="tab-pane" id="schedulerTab">
+                <div class="scheduler-header">
+                    <h3>Auto-Clean Schedules</h3>
+                    <button class="add-schedule-btn" id="addSchedule">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                        </svg>
+                        Add Schedule
+                    </button>
+                </div>
+
+                <div class="schedules-list" id="schedulesList">
+                    <!-- Schedules will be populated here -->
+                </div>
+
+                <div class="scheduler-form hidden" id="schedulerForm">
+                    <div class="form-group">
+                        <label>Schedule Name</label>
+                        <input type="text" id="scheduleName" placeholder="e.g., Daily Cleanup">
+                    </div>
+                    <div class="form-group">
+                        <label>Frequency</label>
+                        <select id="scheduleFrequency">
+                            <option value="30">Every 30 minutes</option>
+                            <option value="60">Every hour</option>
+                            <option value="360">Every 6 hours</option>
+                            <option value="720">Every 12 hours</option>
+                            <option value="1440" selected>Daily</option>
+                            <option value="10080">Weekly</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Target</label>
+                        <div class="target-options">
+                            <label class="checkbox-container small">
+                                <input type="checkbox" id="schedCookies" checked>
+                                <span class="checkmark"></span>
+                                Cookies
+                            </label>
+                            <label class="checkbox-container small">
+                                <input type="checkbox" id="schedCache">
+                                <span class="checkmark"></span>
+                                Cache
+                            </label>
+                            <label class="checkbox-container small">
+                                <input type="checkbox" id="schedHistory">
+                                <span class="checkmark"></span>
+                                History
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Domain Filter (optional)</label>
+                        <input type="text" id="scheduleDomain" placeholder="e.g., *.example.com">
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn secondary" id="cancelSchedule">Cancel</button>
+                        <button class="btn primary" id="saveSchedule">Save Schedule</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Container -->
+        <div class="toast-container" id="toastContainer"></div>
+    </div>
+
+    <!-- Cookie Detail Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="cookieModal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Cookie Details</h3>
+                <button class="modal-close" id="modalClose">
+                    <svg viewBox="0 0 24 24">
+                        <path
+                            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Dynamic content -->
+            </div>
+            <div class="modal-footer" id="modalFooter">
+                <!-- Dynamic actions -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Backup Modal -->
+    <div class="modal-overlay" id="backupModalOverlay">
+        <div class="modal" id="backupModal">
+            <div class="modal-header">
+                <h3>Cookie Vault</h3>
+                <button class="modal-close" id="backupModalClose">
+                    <svg viewBox="0 0 24 24">
+                        <path
+                            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="vault-tabs">
+                    <button class="vault-tab active" data-vault="backup">Backup</button>
+                    <button class="vault-tab" data-vault="restore">Restore</button>
+                </div>
+
+                <div class="vault-content" id="vaultBackup">
+                    <div class="form-group">
+                        <label>Backup Name</label>
+                        <input type="text" id="backupName" placeholder="My Backup">
+                    </div>
+                    <div class="form-group">
+                        <label>Encryption Password (optional)</label>
+                        <input type="password" id="backupPassword" placeholder="Enter password">
+                    </div>
+                    <div class="form-group">
+                        <label>Include:</label>
+                        <div class="target-options">
+                            <label class="checkbox-container small">
+                                <input type="checkbox" id="backupAllDomains" checked>
+                                <span class="checkmark"></span>
+                                All Domains
+                            </label>
+                            <label class="checkbox-container small">
+                                <input type="checkbox" id="backupCurrentOnly">
+                                <span class="checkmark"></span>
+                                Current Site Only
+                            </label>
+                        </div>
+                    </div>
+                    <button class="btn primary full-width" id="createBackup">
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" />
+                        </svg>
+                        Create Backup
+                    </button>
+                </div>
+
+                <div class="vault-content hidden" id="vaultRestore">
+                    <div class="form-group">
+                        <label>Select Backup File</label>
+                        <div class="file-upload">
+                            <input type="file" id="restoreFile" accept=".json,.cmb">
+                            <label for="restoreFile">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z" />
+                                </svg>
+                                <span>Choose file or drag here</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Decryption Password (if encrypted)</label>
+                        <input type="password" id="restorePassword" placeholder="Enter password">
+                    </div>
+                    <div class="backup-list" id="savedBackups">
+                        <!-- Saved backups will appear here -->
+                    </div>
+                    <button class="btn primary full-width" id="restoreBackup">
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" />
+                        </svg>
+                        Restore Cookies
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="popup.js" type="module"></script>
+</body>
+
+</html>

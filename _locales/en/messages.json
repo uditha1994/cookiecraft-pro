@@ -1,0 +1,82 @@
+{
+    "appName": {
+        "message": "CookieMaster Pro",
+        "description": "The name of the extension"
+    },
+    "appDescription": {
+        "message": "Advanced cookie and cache management with visual analytics, smart scheduling, and privacy protection.",
+        "description": "The description of the extension"
+    },
+    "clearCookies": {
+        "message": "Clear Cookies",
+        "description": "Button text for clearing cookies"
+    },
+    "clearCache": {
+        "message": "Clear Cache",
+        "description": "Button text for clearing cache"
+    },
+    "backup": {
+        "message": "Backup",
+        "description": "Button text for backup"
+    },
+    "restore": {
+        "message": "Restore",
+        "description": "Button text for restore"
+    },
+    "settings": {
+        "message": "Settings",
+        "description": "Settings page title"
+    },
+    "dashboard": {
+        "message": "Dashboard",
+        "description": "Dashboard page title"
+    },
+    "cookies": {
+        "message": "Cookies",
+        "description": "Cookies tab label"
+    },
+    "cache": {
+        "message": "Cache",
+        "description": "Cache tab label"
+    },
+    "scheduler": {
+        "message": "Scheduler",
+        "description": "Scheduler tab label"
+    },
+    "privacyScore": {
+        "message": "Privacy Score",
+        "description": "Privacy score label"
+    },
+    "secure": {
+        "message": "Secure",
+        "description": "Secure cookie badge"
+    },
+    "httpOnly": {
+        "message": "HttpOnly",
+        "description": "HttpOnly cookie badge"
+    },
+    "session": {
+        "message": "Session",
+        "description": "Session cookie badge"
+    },
+    "confirmClearAll": {
+        "message": "Are you sure you want to clear all cookies? This will log you out of all websites.",
+        "description": "Confirmation message for clearing all cookies"
+    },
+    "cookiesCleared": {
+        "message": "Cookies cleared successfully",
+        "description": "Success message after clearing cookies"
+    },
+    "backupCreated": {
+        "message": "Backup created successfully",
+        "description": "Success message after creating backup"
+    },
+    "restoreSuccess": {
+        "message": "Cookies restored successfully",
+        "description": "Success message after restoring cookies"
+    },
+    "scheduleCreated": {
+        "message": "Schedule created successfully",
+        "description": "Success message after creating schedule"
+    }
+}

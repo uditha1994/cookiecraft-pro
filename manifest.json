@@ -1,0 +1,45 @@
+{
+  "manifest_version": 3,
+  "name": "CookieCraft Pro",
+  "version": "1.0.0",
+  "description": "Advanced cookie and cache management with visual analytics, smart scheduling, and privacy protection.",
+  "author": "Your Name",
+  "permissions": [
+    "cookies",
+    "storage",
+    "alarms",
+    "browsingData",
+    "tabs",
+    "notifications",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "assets/icons/cookies.png",
+      "32": "assets/icons/cookies.png",
+      "48": "assets/icons/cookies.png",
+      "128": "assets/icons/cookies.png"
+    },
+    "default_title": "CookieCraft Pro"
+  },
+  "background": {
+    "service_worker": "background/background.js",
+    "type": "module"
+  },
+  "icons": {
+    "16": "assets/icons/cookies.png",
+    "32": "assets/icons/cookies.png",
+    "48": "assets/icons/cookies.png",
+    "128": "assets/icons/cookies.png"
+  },
+  "options_page": "dashboard/dashboard.html",
+  "default_locale": "en",
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  "minimum_chrome_version": "88"
+}
