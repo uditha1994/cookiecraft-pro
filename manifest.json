@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "CookieCraft Pro",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "Advanced cookie and cache management with visual analytics, smart scheduling, and privacy protection.",
-  "author": "Your Name",
+  "author": "Uditha Landekumbura @ FullStackCraft",
   "permissions": [
     "cookies",
     "storage",
