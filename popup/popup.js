@@ -1,7 +1,3 @@
-// ========================================
-// CookieMaster Pro - Popup Script
-// ========================================
-
 import { CookieManager } from '../utils/cookieManager.js';
 import { CacheManager } from '../utils/cacheManager.js';
 import { StorageManager } from '../utils/storageManager.js';
@@ -336,18 +332,49 @@ function initCacheChart() {
 
 async function clearSelectedCache() {
     const options = {
-        removeHistory: document.getElementById('clearBrowsingHistory').checked,
-        removeDownloads: document.getElementById('clearDownloads').checked,
-        removeCache: document.getElementById('clearCache').checked,
-        removeFormData: document.getElementById('clearFormData').checked,
-        removeLocalStorage: document.getElementById('clearLocalStorage').checked
+        removeHistory: document.getElementById('clearBrowsingHistory')?.checked || false,
+        removeDownloads: document.getElementById('clearDownloads')?.checked || false,
+        removeCache: document.getElementById('clearCache')?.checked || false,
+        removeFormData: document.getElementById('clearFormData')?.checked || false,
+        removeLocalStorage: document.getElementById('clearLocalStorage')?.checked || false
     };
 
-    const timeRange = parseInt(document.getElementById('timeRange').value);
+    // Check if at least one option is selected
+    const hasSelection = Object.values(options).some(value => value === true);
+
+    if (!hasSelection) {
+        showToast('Please select at least one data type to clear', 'warning');
+        return;
+    }
+
+    const timeRangeValue = parseInt(document.getElementById('timeRange')?.value || '0');
+
+    // Calculate the 'since' timestamp
+    // If timeRangeValue is 0, it means "All time" - clear everything
+    // Otherwise, calculate the timestamp from which to start clearing
+    let since = 0;
+    if (timeRangeValue > 0) {
+        since = Date.now() - timeRangeValue;
+    }
+
+    console.log('Clearing data with options:', options);
+    console.log('Time range value:', timeRangeValue);
+    console.log('Since timestamp:', since, '(', new Date(since).toLocaleString(), ')');
 
     try {
-        await cacheManager.clearBrowsingData(options, timeRange);
-        showToast('Browsing data cleared successfully', 'success');
+        await cacheManager.clearBrowsingData(options, since);
+
+        // Build success message
+        const clearedItems = [];
+        if (options.removeHistory) clearedItems.push('browsing history');
+        if (options.removeDownloads) clearedItems.push('download history');
+        if (options.removeCache) clearedItems.push('cache');
+        if (options.removeFormData) clearedItems.push('form data');
+        if (options.removeLocalStorage) clearedItems.push('local storage');
+
+        const message = `Cleared: ${clearedItems.join(', ')}`;
+        showToast(message, 'success');
+
     } catch (error) {
         console.error('Error clearing cache:', error);
         showToast('Failed to clear browsing data', 'error');
@@ -533,7 +560,7 @@ async function createBackup() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `cookiemaster-backup-${Date.now()}.cmb`;
+        a.download = `cookiecraft-backup-${Date.now()}.cmb`;
         a.click();
         URL.revokeObjectURL(url);
 

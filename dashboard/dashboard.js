@@ -1,5 +1,5 @@
 // ========================================
-// CookieMaster Pro - Dashboard Script
+// CookieCraft Pro - Dashboard Script
 // ========================================
 
 import { CookieManager } from '../utils/cookieManager.js';
@@ -1221,7 +1221,7 @@ function setupEventListeners() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `cookiemaster-export-${Date.now()}.json`;
+    a.download = `cookiecraft-export-${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(url);
     showToast('Cookies exported', 'success');
@@ -1434,7 +1434,7 @@ async function createVaultBackup() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `cookiemaster-backup-${Date.now()}.cmb`;
+    a.download = `cookiecraft-backup-${Date.now()}.cmb`;
     a.click();
     URL.revokeObjectURL(url);
 
@@ -1542,7 +1542,7 @@ async function exportAllSettings() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `cookiemaster-settings-${Date.now()}.json`;
+  a.download = `cookiecraft-settings-${Date.now()}.json`;
   a.click();
   URL.revokeObjectURL(url);
 
@@ -1680,9 +1680,9 @@ function showWelcomeMessage() {
             </linearGradient>
           </defs>
         </svg>
-        <h2 style="margin-bottom: 16px; font-size: 24px;">Welcome to CookieMaster Pro!</h2>
+        <h2 style="margin-bottom: 16px; font-size: 24px;">Welcome to CookieCraft Pro!</h2>
         <p style="color: var(--text-secondary); margin-bottom: 24px; line-height: 1.6;">
-          Thank you for installing CookieMaster Pro. Your all-in-one solution for managing cookies, 
+          Thank you for installing CookieCraft Pro. Your all-in-one solution for managing cookies, 
           cache, and browsing data with powerful features like automated schedules, encrypted backups, 
           and detailed analytics.
         </p>
@@ -1870,4 +1870,4 @@ function getFaviconUrl(domain) {
   return `https://www.google.com/s2/favicons?domain=${cleanedDomain}&sz=32`;
 }
 
-console.log('CookieMaster Pro Dashboard loaded');
+console.log('CookieCraft Pro Dashboard loaded');

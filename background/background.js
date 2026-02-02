@@ -1,5 +1,5 @@
 // ========================================
-// CookieMaster Pro - Background Service Worker
+// CookieCraft Pro - Background Service Worker
 // ========================================
 
 import { CookieManager } from '../utils/cookieManager.js';
@@ -16,7 +16,7 @@ const storageManager = new StorageManager();
 // ========================================
 
 chrome.runtime.onInstalled.addListener(async (details) => {
-    console.log('CookieMaster Pro installed:', details.reason);
+    console.log('CookieCraft Pro installed:', details.reason);
 
     if (details.reason === 'install') {
         // Set default settings
@@ -60,7 +60,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 });
 
 chrome.runtime.onStartup.addListener(async () => {
-    console.log('CookieMaster Pro started');
+    console.log('CookieCraft Pro started');
 
     // Restore schedule alarms
     await restoreScheduleAlarms();
@@ -99,7 +99,7 @@ function createContextMenus() {
 
         chrome.contextMenus.create({
             id: 'openDashboard',
-            title: 'Open CookieMaster Dashboard',
+            title: 'Open CookieCraft Dashboard',
             contexts: ['page']
         });
     });
@@ -118,8 +118,8 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
                     if (settings.notifications !== false) {
                         chrome.notifications.create({
                             type: 'basic',
-                            iconUrl: 'assets/icons/icon128.png',
-                            title: 'CookieMaster Pro',
+                            iconUrl: 'assets/icons/cookies.png',
+                            title: 'CookieCraft Pro',
                             message: `Cookies cleared for ${url.hostname}`
                         });
                     }
@@ -208,6 +208,19 @@ async function handleMessage(message, sender) {
 
         case 'importCookies':
             return await cookieManager.importCookies(message.data, message.options);
+
+        // Debug actions
+        case 'listAlarms':
+            return await listAllAlarms();
+
+        case 'clearAllAlarms':
+            return await clearAllScheduleAlarms();
+
+        case 'getSettings':
+            return await storageManager.get('settings');
+
+        case 'getSchedules':
+            return await storageManager.get('schedules');
 
         default:
             throw new Error(`Unknown action: ${message.action}`);
@@ -398,24 +411,37 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 });
 
 async function executeSchedule(scheduleId) {
+    console.log('=== SCHEDULE EXECUTION START ===');
+    console.log('Schedule ID:', scheduleId);
+
     const schedules = await storageManager.get('schedules') || [];
+    console.log('All schedules:', schedules);
+
     const schedule = schedules.find(s => s.id === scheduleId);
 
-    if (!schedule || !schedule.enabled) {
-        console.log('Schedule not found or disabled:', scheduleId);
+    if (!schedule) {
+        console.log('Schedule not found:', scheduleId);
+        return;
+    }
+
+    if (!schedule.enabled) {
+        console.log('Schedule is disabled:', scheduleId);
         return;
     }
 
     console.log('Executing schedule:', schedule.name);
+    console.log('Schedule targets:', schedule.targets);
+    console.log('Schedule domain:', schedule.domain);
 
     try {
         let clearedItems = [];
 
         // Clear cookies if enabled
         if (schedule.targets && schedule.targets.cookies) {
+            console.log('Clearing cookies...');
             if (schedule.domain) {
                 await cookieManager.deleteCookiesForDomain(schedule.domain);
-                clearedItems.push('cookies');
+                clearedItems.push('cookies for ' + schedule.domain);
             } else {
                 await cookieManager.clearAllCookies();
                 clearedItems.push('all cookies');
@@ -424,12 +450,14 @@ async function executeSchedule(scheduleId) {
 
         // Clear cache if enabled
         if (schedule.targets && schedule.targets.cache) {
+            console.log('Clearing cache...');
             await cacheManager.clearCache();
             clearedItems.push('cache');
         }
 
         // Clear history if enabled
         if (schedule.targets && schedule.targets.history) {
+            console.log('Clearing history...');
             await cacheManager.clearHistory();
             clearedItems.push('history');
         }
@@ -439,16 +467,18 @@ async function executeSchedule(scheduleId) {
 
         // Show notification
         const settings = await storageManager.get('settings') || {};
-        if (settings.notifications !== false) {
+        if (settings.notifications !== false && clearedItems.length > 0) {
             chrome.notifications.create({
                 type: 'basic',
                 iconUrl: 'assets/icons/icon128.png',
-                title: 'CookieMaster Pro',
+                title: 'CookieCraft Pro',
                 message: `Schedule "${schedule.name}" completed. Cleared: ${clearedItems.join(', ')}`
             });
         }
 
         console.log('Schedule executed successfully:', schedule.name);
+        console.log('Cleared items:', clearedItems);
+        console.log('=== SCHEDULE EXECUTION END ===');
 
     } catch (error) {
         console.error('Schedule execution error:', error);
@@ -458,7 +488,7 @@ async function executeSchedule(scheduleId) {
             chrome.notifications.create({
                 type: 'basic',
                 iconUrl: 'assets/icons/icon128.png',
-                title: 'CookieMaster Pro - Error',
+                title: 'CookieCraft Pro - Error',
                 message: `Schedule "${schedule.name}" failed: ${error.message}`
             });
         }
@@ -531,10 +561,19 @@ chrome.windows.onRemoved.addListener(async (windowId) => {
         if (windows.length === 0) {
             const settings = await storageManager.get('settings') || {};
 
-            if (settings.autoCleanOnClose) {
+            // Only auto-clean if explicitly enabled by user
+            if (settings.autoCleanOnClose === true) {
                 console.log('Auto-cleaning on browser close...');
+
+                // Log what we're about to do
+                console.log('Settings autoCleanOnClose:', settings.autoCleanOnClose);
+
                 await cookieManager.clearAllCookies();
                 await cacheManager.clearCache();
+
+                console.log('Auto-clean completed');
+            } else {
+                console.log('Auto-clean on close is disabled, skipping...');
             }
         }
     } catch (error) {
@@ -555,8 +594,37 @@ const keepAlive = () => {
     }, 20000);
 };
 
+async function clearAllScheduleAlarms() {
+    try {
+        const existingAlarms = await chrome.alarms.getAll();
+        console.log('Existing alarms:', existingAlarms);
+
+        for (const alarm of existingAlarms) {
+            if (alarm.name.startsWith('schedule_')) {
+                await chrome.alarms.clear(alarm.name);
+                console.log('Cleared alarm:', alarm.name);
+            }
+        }
+
+        console.log('All schedule alarms cleared');
+        return { success: true };
+    } catch (error) {
+        console.error('Error clearing alarms:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+async function listAllAlarms() {
+    const alarms = await chrome.alarms.getAll();
+    console.log('=== ALL ACTIVE ALARMS ===');
+    alarms.forEach(alarm => {
+        console.log(`Alarm: ${alarm.name}, Period: ${alarm.periodInMinutes} min, Next: ${new Date(alarm.scheduledTime).toLocaleString()}`);
+    });
+    return alarms;
+}
+
 // Initialize on script load
-console.log('CookieMaster Pro background service worker initialized');
+console.log('CookieCraft Pro background service worker initialized');
 
 // Initial badge update
 updateBadge().catch(console.error);
